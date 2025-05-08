@@ -1,7 +1,10 @@
 ```markdown
 # Proyecto Integrado V - COLCAP Tracker
 
-Este proyecto tiene como objetivo automatizar la recolección continua de datos históricos del índice bursátil **COLCAP**, principal indicador del mercado accionario colombiano. Los datos se obtienen de Yahoo Finanzas y se almacenan en un archivo CSV, manteniendo su trazabilidad en un entorno de control de versiones con GitHub.
+Este proyecto tiene como objetivo automatizar la recolección continua de datos históricos 
+del índice bursátil **COLCAP**, principal indicador del mercado accionario colombiano.
+Los datos se obtienen de Yahoo Finanzas y se almacenan en un archivo CSV, 
+manteniendo su trazabilidad en un entorno de control de versiones con GitHub.
 
 ## 📌 Características
 
