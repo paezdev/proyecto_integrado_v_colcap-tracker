@@ -16,6 +16,9 @@ class DataCollector:
         return df
 
     def save_data(self, df):
+        # Crear el directorio si no existe
+        os.makedirs(os.path.dirname(self.filepath), exist_ok=True)
+
         if os.path.exists(self.filepath):
             old_df = pd.read_csv(self.filepath, parse_dates=["Date"])
             merged_df = pd.concat([old_df, df]).drop_duplicates(subset="Date").sort_values("Date")
@@ -25,6 +28,6 @@ class DataCollector:
         self.logger.info(f"Datos guardados en {self.filepath}")
 
 if __name__ == "__main__":
-    collector = DataCollector("^737809-COP-STRD", "src/static/historical.csv")
+    collector = DataCollector("AVAL", "src/static/historical.csv")
     data = collector.fetch_data()
     collector.save_data(data)

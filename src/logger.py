@@ -9,4 +9,4 @@ def setup_logger():
             logging.StreamHandler()
         ]
     )
-    return logging.getLogger("COLCAPLogger")
+    return logging.getLogger("LoggerAVAL")

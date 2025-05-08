@@ -1,4 +1,4 @@
-name: Actualizar datos COLCAP
+name: Actualizar datos AVAL
 
 on:
   schedule:
@@ -9,7 +9,7 @@ jobs:
   update-data:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout repositorio
+    - name: Checkout del repositorio
       uses: actions/checkout@v3
 
     - name: Configurar Python
