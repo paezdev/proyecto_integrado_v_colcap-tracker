@@ -21,7 +21,7 @@ Este proyecto tiene como objetivo automatizar la recolección continua de datos 
 ## 📁 Estructura del proyecto
 
 ```
-
+```
 proyecto\_integrado\_v\_colcap-tracker/
 ├── .github/workflows/update\_data.yml
 ├── docs/report\_entrega1.pdf
@@ -30,6 +30,7 @@ proyecto\_integrado\_v\_colcap-tracker/
 │   ├── logger.py
 │   └── static/historical.csv
 └── README.md
+```
 
 ```
 
