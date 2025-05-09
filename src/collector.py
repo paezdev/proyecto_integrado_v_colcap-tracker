@@ -3,14 +3,17 @@ import pandas as pd
 import os
 from logger import setup_logger
 from datetime import datetime
+import csv_logger  # Este es el archivo para escribir el log en formato CSV
 
 class DataCollector:
     def __init__(self, symbol, filepath):
+        """Inicializa el recolector de datos con el símbolo y archivo especificado."""
         self.symbol = symbol
         self.filepath = filepath
-        self.logger = setup_logger()
+        self.logger = setup_logger()  # Configuración del logger
 
     def fetch_data(self):
+        """Descarga los datos de un símbolo usando yfinance."""
         self.logger.info(f"Descargando datos para {self.symbol}")
         df = yf.download(self.symbol, progress=False, auto_adjust=False, actions=True)
         df.reset_index(inplace=True)
@@ -20,6 +23,7 @@ class DataCollector:
         return df
 
     def save_data(self, df):
+        """Guarda los datos descargados en un archivo CSV y registra detalles."""
         # Crear el directorio si no existe
         dir_path = os.path.dirname(self.filepath)
         if not os.path.exists(dir_path):
@@ -27,6 +31,7 @@ class DataCollector:
 
         downloaded_count = len(df)
 
+        # Leer archivo histórico si existe
         if os.path.exists(self.filepath) and os.path.getsize(self.filepath) > 0:
             old_df = pd.read_csv(self.filepath, parse_dates=["Date"])
 
@@ -34,6 +39,7 @@ class DataCollector:
             old_df.columns = [col if isinstance(col, str) else ' '.join(col).strip() for col in old_df.columns]
 
             before_merge_count = len(old_df)
+            # Combinar datos antiguos con los nuevos, eliminando duplicados por fecha
             merged_df = pd.concat([old_df, df]).drop_duplicates(subset="Date").sort_values("Date")
             after_merge_count = len(merged_df)
             new_rows_added = after_merge_count - before_merge_count
@@ -41,33 +47,33 @@ class DataCollector:
             merged_df = df
             new_rows_added = len(df)
 
-
-        # LIMPIAR columnas antes de guardar para evitar multi-index accidentales
+        # LIMPIAR columnas antes de guardar para evitar multi-index accidental
         merged_df.columns = [col if isinstance(col, str) else ' '.join(col).strip() for col in merged_df.columns]
-        
+
+        # Guardar datos en el archivo CSV
         merged_df.to_csv(self.filepath, index=False)
         self.logger.info(f"Datos guardados en {self.filepath}")
         self.logger.info(f"Registros descargados: {downloaded_count}")
         self.logger.info(f"Nuevos registros agregados: {new_rows_added}")
         self.logger.info(f"Total de registros en el archivo: {len(merged_df)}")
 
-        log_data_path = "log_data.csv"
+        # Registrar en archivo CSV centralizado
+        csv_logger.write_csv_log(self.symbol, downloaded_count, new_rows_added, len(merged_df), "Éxito")
 
+    def handle_error(self, error_message):
+        """Maneja errores y los registra en el log."""
+        self.logger.error(f"Error al procesar datos: {error_message}")
+
+        # Registrar error en archivo CSV de log
         log_entry = {
             "Fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "Símbolo": self.symbol,
-            "Registros_descargados": downloaded_count,
-            "Registros_agregados": new_rows_added,
-            "Total_en_archivo": len(merged_df)
+            "Registros_descargados": 0,
+            "Registros_agregados": 0,
+            "Total_en_archivo": "Error",
+            "Estado": f"Error: {error_message}"
         }
-
-        log_df = pd.DataFrame([log_entry])
-
-        # Si el archivo no existe, crearlo con encabezado; si existe, agregar sin encabezado
-        if not os.path.exists(log_data_path):
-            log_df.to_csv(log_data_path, index=False)
-        else:
-            log_df.to_csv(log_data_path, mode='a', header=False, index=False)
+        csv_logger.write_csv_log(self.symbol, 0, 0, "Error", f"Error: {error_message}")
 
 
 if __name__ == "__main__":
@@ -76,31 +82,5 @@ if __name__ == "__main__":
         data = collector.fetch_data()
         collector.save_data(data)
 
-        # Si todo sale bien, también lo registra como "Éxito"
-        log_data_path = "log_data.csv"
-        from datetime import datetime
-        log_entry = {
-            "Fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "Símbolo": collector.symbol,
-            "Registros_descargados": len(data),
-            "Registros_agregados": "Ver arriba",  # Ya está en save_data()
-            "Total_en_archivo": "Ver arriba",
-            "Estado": "Éxito"
-        }
-        pd.DataFrame([log_entry]).to_csv(log_data_path, mode='a', header=not os.path.exists(log_data_path), index=False)
-
     except Exception as e:
-        collector.logger.error(f"Error al procesar datos: {str(e)}")
-
-        # Registrar error en log_data.csv también
-        log_data_path = "log_data.csv"
-        from datetime import datetime
-        log_entry = {
-            "Fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "Símbolo": collector.symbol,
-            "Registros_descargados": 0,
-            "Registros_agregados": 0,
-            "Total_en_archivo": "Error",
-            "Estado": f"Error: {str(e)}"
-        }
-        pd.DataFrame([log_entry]).to_csv(log_data_path, mode='a', header=not os.path.exists(log_data_path), index=False)
+        collector.handle_error(str(e))
