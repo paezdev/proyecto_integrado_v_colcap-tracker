@@ -1,0 +1,14 @@
+[2025-05-09 08:37:20 | LoggerAVAL | MiClase | mi_funcion | DEBUG] Este es un mensaje de debug
+[2025-05-09 08:37:20 | LoggerAVAL | MiClase | mi_funcion | INFO] Este es un mensaje de info
+[2025-05-09 08:37:20 | LoggerAVAL | MiClase | mi_funcion | WARNING] Este es un mensaje de warning
+[2025-05-09 08:37:20 | LoggerAVAL | MiClase | mi_funcion | ERROR] Error en la operación: division by zero
+Traceback (most recent call last):
+  File "/home/runner/work/proyecto_integrado_v_colcap-tracker/proyecto_integrado_v_colcap-tracker/src/logger.py", line 91, in <module>
+    1 / 0
+ZeroDivisionError: division by zero
+[2025-05-09 08:37:20 | LoggerAVAL | MiClase | mi_funcion | CRITICAL] Este es un mensaje de critical
+[2025-05-09 08:37:20 | LoggerAVAL | DataCollector | fetch_data | INFO] Descargando datos para AVAL
+[2025-05-09 08:37:20 | LoggerAVAL | DataCollector | save_data | INFO] Datos guardados en src/static/historical.csv
+[2025-05-09 08:37:20 | LoggerAVAL | DataCollector | save_data | INFO] Registros descargados: 2673
+[2025-05-09 08:37:20 | LoggerAVAL | DataCollector | save_data | INFO] Nuevos registros agregados: 0
+[2025-05-09 08:37:20 | LoggerAVAL | DataCollector | save_data | INFO] Total de registros en el archivo: 2673
