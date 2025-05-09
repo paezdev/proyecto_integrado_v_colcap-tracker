@@ -26,46 +26,57 @@ class Logger:
 
         self.logger = logging.getLogger('LoggerAVAL')
 
-    def debug(self, class_name, function_name, description):
+    def debug(self, class_name, function_name, description, exc_info=False):
         """Registra un mensaje de nivel DEBUG."""
         self.logger.debug(
             description,
-            extra={'class_name': class_name, 'function_name': function_name}
+            extra={'class_name': class_name, 'function_name': function_name},
+            exc_info=exc_info
         )
 
-    def info(self, class_name, function_name, description):
+    def info(self, class_name, function_name, description, exc_info=False):
         """Registra un mensaje de nivel INFO."""
         self.logger.info(
             description,
-            extra={'class_name': class_name, 'function_name': function_name}
+            extra={'class_name': class_name, 'function_name': function_name},
+            exc_info=exc_info
         )
 
-    def warning(self, class_name, function_name, description):
+    def warning(self, class_name, function_name, description, exc_info=False):
         """Registra un mensaje de nivel WARNING."""
         self.logger.warning(
             description,
-            extra={'class_name': class_name, 'function_name': function_name}
+            extra={'class_name': class_name, 'function_name': function_name},
+            exc_info=exc_info
         )
 
-    def error(self, class_name, function_name, description):
+    def error(self, class_name, function_name, description, exc_info=False):
         """Registra un mensaje de nivel ERROR."""
         self.logger.error(
             description,
-            extra={'class_name': class_name, 'function_name': function_name}
+            extra={'class_name': class_name, 'function_name': function_name},
+            exc_info=exc_info  # Esto agregará la traza de la excepción
         )
 
-    def critical(self, class_name, function_name, description):
+    def critical(self, class_name, function_name, description, exc_info=False):
         """Registra un mensaje de nivel CRITICAL."""
         self.logger.critical(
             description,
-            extra={'class_name': class_name, 'function_name': function_name}
+            extra={'class_name': class_name, 'function_name': function_name},
+            exc_info=exc_info
         )
 
 logger = Logger()
 
-# Registra logs con diferentes niveles
+# Registra logs con diferentes niveles, con exc_info=False en este caso
 logger.debug('MiClase', 'mi_funcion', 'Este es un mensaje de debug')
 logger.info('MiClase', 'mi_funcion', 'Este es un mensaje de info')
 logger.warning('MiClase', 'mi_funcion', 'Este es un mensaje de warning')
-logger.error('MiClase', 'mi_funcion', 'Este es un mensaje de error')
+
+# Registra un error con detalles de la excepción
+try:
+    1 / 0  # Esto generará una excepción
+except ZeroDivisionError as e:
+    logger.error('MiClase', 'mi_funcion', f"Error en la operación: {str(e)}", exc_info=True)
+
 logger.critical('MiClase', 'mi_funcion', 'Este es un mensaje de critical')
