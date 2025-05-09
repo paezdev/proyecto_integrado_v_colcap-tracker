@@ -39,7 +39,7 @@ mediante **GitHub Actions**, manteniendo la trazabilidad y persistencia del hist
 ## 📁 Estructura del repositorio
 
 ```
-
+```
 proyecto\_integrado\_v\_aval/
 ├── .github/
 │   └── workflows/
@@ -57,7 +57,7 @@ proyecto\_integrado\_v\_aval/
 ├── README.md
 └── .gitignore
 
-````
+```
 
 ---
 
