@@ -3,28 +3,29 @@ name: Actualizar datos AVAL
 on:
   schedule:
     - cron: '0 12 * * *'  # Ejecuta todos los días a las 12:00 UTC
-  workflow_dispatch:
+  workflow_dispatch:  # Permite ejecutar el flujo de trabajo manualmente desde GitHub
 
 jobs:
   update-data:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # Entorno donde se ejecuta el flujo de trabajo
+
     steps:
     - name: Paso 1.) Checkout del repositorio
-      uses: actions/checkout@v3
+      uses: actions/checkout@v3  # Este paso descarga el código fuente del repositorio
 
     - name: Paso 2.) Configurar Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.10'
+        python-version: '3.10'  # Configura Python 3.10
 
     - name: Paso 3.) Instalar dependencias
       run: |
         pip install --upgrade pip
-        pip install .  # Instala el paquete desde el setup.py (en la raíz del proyecto)
+        pip install .  # Instala dependencias del proyecto
 
     - name: Paso 4.) Ejecutar colector
       run: |
-        python src/collector.py
+        python src/collector.py  # Ejecuta tu script que genera los logs
 
     - name: Paso 5.) Configurar Git
       run: |
@@ -33,9 +34,9 @@ jobs:
 
     - name: Paso 6.) Hacer commit y push de los cambios
       run: |
-        git add src/logs/text_logs/*.log
-        git add src/static/historical.csv src/logs/log_data.csv
-        git commit -m "Actualización automática de datos AVAL"
-        git push https://github.com/${{ github.repository }} HEAD:main
+        git add src/logs/text_logs/*.log  # Añade todos los archivos .log generados
+        git add src/static/historical.csv src/logs/log_data.csv  # Añade otros archivos que quieras guardar
+        git commit -m "Actualización automática de datos AVAL" || echo "No changes to commit"  # Hace commit, pero evita error si no hay cambios
+        git push https://github.com/${{ github.repository }} HEAD:main  # Hace push al repositorio
       env:
-        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}  # Usamos un token para autenticarnos y hacer el push
