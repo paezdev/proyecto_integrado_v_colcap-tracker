@@ -90,10 +90,3 @@ Este proyecto es de uso educativo y forma parte de la asignatura **Proyecto Inte
 bajo la línea de énfasis en automatización y análisis económico.
 
 ---
-
-### Explicación adicional de archivos clave
-
-* **`setup.py`**: Archivo que permite instalar el proyecto como un paquete Python. Facilita su distribución, 
-reutilización y empaquetado. Ideal si deseas instalar tu proyecto con `pip install .`.
-
----
