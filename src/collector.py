@@ -17,7 +17,9 @@ class DataCollector:
 
     def save_data(self, df):
         # Crear el directorio si no existe
-        os.makedirs(os.path.dirname(self.filepath), exist_ok=True)
+        dir_path = os.path.dirname(self.filepath)
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path, exist_ok=True)
 
         if os.path.exists(self.filepath):
             old_df = pd.read_csv(self.filepath, parse_dates=["Date"])

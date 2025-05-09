@@ -1,48 +1,87 @@
 ```markdown
-# Proyecto Integrado V - COLCAP Tracker
+# Proyecto Integrado V - Grupo Aval Tracker (AVAL)
 
-Este proyecto tiene como objetivo automatizar la recolección continua de datos históricos 
-del índice bursátil **COLCAP**, principal indicador del mercado accionario colombiano.
-Los datos se obtienen de Yahoo Finanzas y se almacenan en un archivo CSV, 
-manteniendo su trazabilidad en un entorno de control de versiones con GitHub.
+Este proyecto tiene como objetivo automatizar la recolección continua de datos históricos del 
+**Grupo Aval (AVAL)**, una de las principales entidades financieras de Colombia. Los datos se 
+obtienen desde **Yahoo Finanzas**, se almacenan en formato `.csv` y se actualizan automáticamente 
+mediante **GitHub Actions**, manteniendo la trazabilidad y persistencia del histórico.
+
+---
 
 ## 📌 Características
 
-- Descarga diaria automática de datos usando GitHub Actions.
-- Persistencia histórica sin pérdida de registros anteriores.
-- Registro de ejecución con sistema de logging.
-- Implementado con programación orientada a objetos (OOP).
-- Documentación del proyecto en formato APA.
+- 🔄 Automatización diaria con GitHub Actions
+- 📊 Almacenamiento histórico en `CSV`
+- 🔍 Logs de ejecución para trazabilidad
+- 🧱 Implementación con **Programación Orientada a Objetos (OOP)**
+- 🧪 Recolector de datos con `yfinance` y `pandas`
+
+---
 
 ## ⚙️ Tecnologías utilizadas
 
-- Python 3
-- yfinance
+- Python 3.10
+- [yfinance](https://pypi.org/project/yfinance/)
 - pandas
+- logging
 - GitHub Actions
 
-## 📁 Estructura del proyecto
+---
+
+## 📈 Indicador económico
+
+- **Activo**: Grupo Aval Acciones y Valores S.A.
+- **Símbolo**: `AVAL`
+- [🔗 Ver en Yahoo Finanzas](https://es-us.finanzas.yahoo.com/quote/AVAL/)
+
+---
+
+## 📁 Estructura del repositorio
 
 ```
-```
-proyecto\_integrado\_v\_colcap-tracker/
-├── .github/workflows/update\_data.yml
-├── docs/report\_entrega1.pdf
+
+proyecto\_integrado\_v\_aval/
+├── .github/
+│   └── workflows/
+│       └── update\_data.yml      # Flujo automático de actualización
+│
+├── docs/
+│   └── report\_entrega1.pdf      # Informe académico en formato APA
+│
 ├── src/
-│   ├── collector.py
-│   ├── logger.py
-│   └── static/historical.csv
-└── README.md
-```
+│   ├── collector.py             # Descarga y persistencia de datos
+│   ├── logger.py                # Configuración de logs
+│   └── static/
+│       └── historical.csv       # Datos históricos de AVAL
+│
+├── README.md
+└── .gitignore
 
-```
+````
 
-## 📈 Indicador monitoreado
+---
 
-- **Índice COLCAP** (Símbolo en Yahoo Finanzas: `^737809-COP-STRD`)  
-- [Ver en Yahoo Finanzas](https://es.finance.yahoo.com/quote/%5E737809-COP-STRD/)
+## 🚀 Instrucciones de uso
+
+1. Instala dependencias:
+   ```bash
+   pip install yfinance pandas
+````
+
+2. Ejecuta el colector localmente:
+
+   ```bash
+   python src/collector.py
+   ```
+
+3. (Opcional) Configura y ejecuta GitHub Actions para automatización.
+
+---
 
 ## 📄 Licencia
 
-Este proyecto es únicamente con fines educativos para la asignatura Proyecto Integrado V.
+Este proyecto es de uso educativo y forma parte de la asignatura **Proyecto Integrado V**, bajo la línea de énfasis en automatización y análisis económico.
+
+---
+
 ```
