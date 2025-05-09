@@ -5,8 +5,6 @@ una de las principales entidades financieras de Colombia. Los datos se obtienen 
 en formato `.csv` y se actualizan automáticamente mediante **GitHub Actions**, manteniendo la trazabilidad y 
 persistencia del histórico.
 
----
-
 ## 📌 Características
 
 * 🔄 **Automatización diaria con GitHub Actions**: Los datos se actualizan automáticamente cada día a las 12:00 UTC.
@@ -17,8 +15,6 @@ persistencia del histórico.
 * 🧾 **Logger personalizado en CSV**: Se usa un logger en formato CSV para almacenar logs de ejecución estructurados.
 * 📦 **Distribución del paquete con `setup.py`**: Estructura preparada para instalación como paquete Python local o remoto.
 
----
-
 ## ⚙️ Tecnologías utilizadas
 
 * Python 3.10
@@ -27,15 +23,11 @@ persistencia del histórico.
 * logging
 * GitHub Actions
 
----
-
 ## 📈 Indicador económico
 
 * **Activo**: Grupo Aval Acciones y Valores S.A.
 * **Símbolo**: `AVAL`
 * [🔗 Ver en Yahoo Finanzas](https://es-us.finanzas.yahoo.com/quote/AVAL/)
-
----
 
 ## 📁 Estructura del repositorio
 
@@ -62,8 +54,6 @@ proyecto_integrado_v_aval/
 └── .gitignore
 ```
 
----
-
 ## 🚀 Instrucciones de uso
 
 1. **Instala dependencias**:
@@ -82,11 +72,7 @@ proyecto_integrado_v_aval/
    GitHub Actions ejecuta automáticamente el flujo en `.github/workflows/update_data.yml` todos los días a las 12:00 UTC.
    Los datos se actualizan, se almacenan en `historical.csv`, y los logs quedan en `src/logs/log_data.csv`.
 
----
-
 ## 📄 Licencia
 
 Este proyecto es de uso educativo y forma parte de la asignatura **Proyecto Integrado V**, 
 bajo la línea de énfasis en automatización y análisis económico.
-
----
