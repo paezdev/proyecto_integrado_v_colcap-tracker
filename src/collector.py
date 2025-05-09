@@ -14,6 +14,9 @@ class DataCollector:
         self.logger.info(f"Descargando datos para {self.symbol}")
         df = yf.download(self.symbol, progress=False, auto_adjust=False, actions=True)
         df.reset_index(inplace=True)
+
+        # LIMPIAR columnas por si vienen jerárquicas
+        df.columns = [col if isinstance(col, str) else ' '.join(col).strip() for col in df.columns]
         return df
 
     def save_data(self, df):
@@ -26,6 +29,10 @@ class DataCollector:
 
         if os.path.exists(self.filepath) and os.path.getsize(self.filepath) > 0:
             old_df = pd.read_csv(self.filepath, parse_dates=["Date"])
+
+            # LIMPIAR columnas del archivo viejo
+            old_df.columns = [col if isinstance(col, str) else ' '.join(col).strip() for col in old_df.columns]
+
             before_merge_count = len(old_df)
             merged_df = pd.concat([old_df, df]).drop_duplicates(subset="Date").sort_values("Date")
             after_merge_count = len(merged_df)
@@ -34,6 +41,10 @@ class DataCollector:
             merged_df = df
             new_rows_added = len(df)
 
+
+        # LIMPIAR columnas antes de guardar para evitar multi-index accidentales
+        merged_df.columns = [col if isinstance(col, str) else ' '.join(col).strip() for col in merged_df.columns]
+        
         merged_df.to_csv(self.filepath, index=False)
         self.logger.info(f"Datos guardados en {self.filepath}")
         self.logger.info(f"Registros descargados: {downloaded_count}")
