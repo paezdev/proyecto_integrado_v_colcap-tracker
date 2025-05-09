@@ -25,7 +25,7 @@ jobs:
 
     - name: Paso 4.) Ejecutar colector
       run: |
-        python src/collector.py  # Ejecuta tu script que genera los logs
+        python src/collector.py  # Ejecuta el script principal.
 
     - name: Paso 5.) Configurar Git
       run: |
