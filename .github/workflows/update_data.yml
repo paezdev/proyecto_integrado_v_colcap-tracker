@@ -33,7 +33,7 @@ jobs:
 
     - name: Paso 6.) Hacer commit y push de los cambios
       run: |
-        git add src/static/historical.csv log_data.csv
+        git add src/static/historical.csv src/logs/log_data.csv
         git commit -m "Actualización automática de datos AVAL"
         git push https://github.com/${{ github.repository }} HEAD:main
       env:
