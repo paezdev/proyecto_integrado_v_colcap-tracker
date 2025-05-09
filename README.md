@@ -1,6 +1,9 @@
 ## Proyecto Integrado V - Grupo Aval Tracker (AVAL)
 
-Este proyecto tiene como objetivo automatizar la recolección continua de datos históricos del **Grupo Aval (AVAL)**, una de las principales entidades financieras de Colombia. Los datos se obtienen desde **Yahoo Finanzas**, se almacenan en formato `.csv` y se actualizan automáticamente mediante **GitHub Actions**, manteniendo la trazabilidad y persistencia del histórico.
+Este proyecto tiene como objetivo automatizar la recolección continua de datos históricos del **Grupo Aval (AVAL)**, 
+una de las principales entidades financieras de Colombia. Los datos se obtienen desde **Yahoo Finanzas**, 
+se almacenan en formato `.csv` y se actualizan automáticamente mediante **GitHub Actions**, manteniendo 
+la trazabilidad y persistencia del histórico.
 
 ## 📌 Características
 
@@ -77,4 +80,5 @@ proyecto_integrado_v_aval_tracker/
 
 ## 📄 Licencia
 
-Este proyecto es de uso educativo y forma parte de la asignatura **Proyecto Integrado V**, bajo la línea de énfasis en automatización y análisis económico.
+Este proyecto es de uso educativo y forma parte de la asignatura **Proyecto Integrado V**, bajo la línea de 
+énfasis en automatización y análisis económico.
