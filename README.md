@@ -79,6 +79,7 @@ proyecto\_integrado\_v\_aval/
 
 ## 📄 Licencia
 
-Este proyecto es de uso educativo y forma parte de la asignatura **Proyecto Integrado V**, bajo la línea de énfasis en automatización y análisis económico.
+Este proyecto es de uso educativo y forma parte de la asignatura **Proyecto Integrado V**, 
+bajo la línea de énfasis en automatización y análisis económico.
 
 ---
