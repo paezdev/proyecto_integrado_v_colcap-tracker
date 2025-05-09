@@ -73,10 +73,11 @@ logger.debug('MiClase', 'mi_funcion', 'Este es un mensaje de debug')
 logger.info('MiClase', 'mi_funcion', 'Este es un mensaje de info')
 logger.warning('MiClase', 'mi_funcion', 'Este es un mensaje de warning')
 
+'''
 # Registra un error con detalles de la excepción
 try:
     1 / 0  # Esto generará una excepción
 except ZeroDivisionError as e:
     logger.error('MiClase', 'mi_funcion', f"Error en la operación: {str(e)}", exc_info=True)
-
+'''
 logger.critical('MiClase', 'mi_funcion', 'Este es un mensaje de critical')
