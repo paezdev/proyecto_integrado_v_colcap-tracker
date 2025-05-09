@@ -12,7 +12,14 @@ class DataCollector:
 
     def fetch_data(self):
         self.logger.info(f"Descargando datos para {self.symbol}")
-        df = yf.download(self.symbol, progress=False, actions=True)
+        df = yf.download(self.symbol, progress=False, actions=True)  # Incluye ajustes de dividendos y splits
+
+        # Imprimir las primeras filas para verificar las columnas (probando)
+        print(df.head())
+
+        if 'Adj Close' not in df.columns:
+            self.logger.error("Falta la columna 'Adj Close' en los datos descargados.")
+        
         df.reset_index(inplace=True)
         return df
 
