@@ -12,7 +12,7 @@ log_filename = f"aval_analysis_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S'
 LOG_FILE = os.path.join(TEXT_LOG_DIR, log_filename)
 
 def setup_logger():
-    """Configura el sistema de logging para registrar eventos en consola y archivo."""
+    """Configura el sistema de logging para registrar eventos en consola y archivo con contexto adicional."""
     logger = logging.getLogger("LoggerAVAL")
     logger.setLevel(logging.INFO)
 
@@ -20,8 +20,11 @@ def setup_logger():
     if logger.handlers:
         return logger
 
-    # Formato uniforme
-    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+    # Formato avanzado
+    # Incluye el nivel de log, la fecha, el mensaje, el nombre del logger, el nombre de la función y la línea de código
+    formatter = logging.Formatter(
+        "%(asctime)s - %(levelname)s - %(name)s - %(funcName)s - Line %(lineno)d - %(message)s"
+    )
 
     # Log a archivo
     file_handler = logging.FileHandler(LOG_FILE, mode='a', encoding='utf-8')  # Modo 'a' para append
