@@ -2,13 +2,14 @@ import logging
 import os
 import datetime
 
-# Directorio de logs (dentro de src/logs)
+# Directorio de logs (dentro de src/logs/text_logs)
 LOG_DIR = os.path.join(os.path.dirname(__file__), "logs")
-os.makedirs(LOG_DIR, exist_ok=True)
+TEXT_LOG_DIR = os.path.join(LOG_DIR, "text_logs")  # Directorio específico para logs de texto
+os.makedirs(TEXT_LOG_DIR, exist_ok=True)  # Crear el directorio si no existe
 
 # Generar el nombre del archivo de log usando la fecha y hora actual
 log_filename = f"aval_analysis_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
-LOG_FILE = os.path.join(LOG_DIR, "text_logs", log_filename)
+LOG_FILE = os.path.join(TEXT_LOG_DIR, log_filename)
 
 def setup_logger():
     """Configura el sistema de logging para registrar eventos en consola y archivo."""
