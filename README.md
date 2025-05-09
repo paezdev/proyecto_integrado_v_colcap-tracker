@@ -1,4 +1,3 @@
-```markdown
 # Proyecto Integrado V - Grupo Aval Tracker (AVAL)
 
 Este proyecto tiene como objetivo automatizar la recolección continua de datos históricos del 
@@ -38,7 +37,7 @@ mediante **GitHub Actions**, manteniendo la trazabilidad y persistencia del hist
 
 ## 📁 Estructura del repositorio
 
-```
+
 ```
 proyecto\_integrado\_v\_aval/
 ├── .github/
@@ -83,5 +82,3 @@ proyecto\_integrado\_v\_aval/
 Este proyecto es de uso educativo y forma parte de la asignatura **Proyecto Integrado V**, bajo la línea de énfasis en automatización y análisis económico.
 
 ---
-
-```
