@@ -1,7 +1,7 @@
 import yfinance as yf
 import pandas as pd
 import os
-from logger import Logger
+from logger import Logger  # Importar la clase Logger
 from datetime import datetime
 import csv_logger  # Este es el archivo para escribir el log en formato CSV
 
@@ -10,11 +10,11 @@ class DataCollector:
         """Inicializa el recolector de datos con el símbolo y archivo especificado."""
         self.symbol = symbol
         self.filepath = filepath
-        self.logger = Logger()  # Configuración del logger
+        self.logger = Logger()  # Instanciar Logger
 
     def fetch_data(self):
         """Descarga los datos de un símbolo usando yfinance."""
-        self.logger.info(f"Descargando datos para {self.symbol}")
+        self.logger.info('DataCollector', 'fetch_data', f"Descargando datos para {self.symbol}")
         df = yf.download(self.symbol, progress=False, auto_adjust=False, actions=True)
         df.reset_index(inplace=True)
 
@@ -52,17 +52,17 @@ class DataCollector:
 
         # Guardar datos en el archivo CSV
         merged_df.to_csv(self.filepath, index=False)
-        self.logger.info(f"Datos guardados en {self.filepath}")
-        self.logger.info(f"Registros descargados: {downloaded_count}")
-        self.logger.info(f"Nuevos registros agregados: {new_rows_added}")
-        self.logger.info(f"Total de registros en el archivo: {len(merged_df)}")
+        self.logger.info('DataCollector', 'save_data', f"Datos guardados en {self.filepath}")
+        self.logger.info('DataCollector', 'save_data', f"Registros descargados: {downloaded_count}")
+        self.logger.info('DataCollector', 'save_data', f"Nuevos registros agregados: {new_rows_added}")
+        self.logger.info('DataCollector', 'save_data', f"Total de registros en el archivo: {len(merged_df)}")
 
         # Registrar en archivo CSV centralizado
         csv_logger.write_csv_log(self.symbol, downloaded_count, new_rows_added, len(merged_df), "Éxito")
 
     def handle_error(self, error_message):
         """Maneja errores y los registra en el log."""
-        self.logger.error(f"Error al procesar datos: {error_message}")
+        self.logger.error('DataCollector', 'handle_error', f"Error al procesar datos: {error_message}")
 
         # Registrar error en archivo CSV de log
         log_entry = {
