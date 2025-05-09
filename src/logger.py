@@ -11,23 +11,41 @@ os.makedirs(TEXT_LOG_DIR, exist_ok=True)  # Crear el directorio si no existe
 log_filename = f"aval_analysis_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 LOG_FILE = os.path.join(TEXT_LOG_DIR, log_filename)
 
+# Formateador personalizado para evitar KeyError si faltan claves
+class CustomFormatter(logging.Formatter):
+    def format(self, record):
+        # Añade atributos personalizados si no existen
+        if not hasattr(record, 'class_name'):
+            record.class_name = 'N/A'
+        if not hasattr(record, 'function_name'):
+            record.function_name = 'N/A'
+        return super().format(record)
+
 class Logger:
     def __init__(self):
         if not os.path.exists(TEXT_LOG_DIR):
             os.makedirs(TEXT_LOG_DIR)
 
-        # Configurar el archivo de log con el formato requerido
-        logging.basicConfig(
-            filename=LOG_FILE,
-            level=logging.DEBUG,  # Para capturar todos los niveles (DEBUG, INFO, WARNING, ERROR, CRITICAL)
-            format='[%(asctime)s | %(name)s | %(class_name)s | %(function_name)s | %(levelname)s] %(message)s',
+        # Crear logger y configurar manejador
+        self.logger = logging.getLogger('LoggerAVAL')
+        self.logger.setLevel(logging.DEBUG)
+
+        # Crear manejador de archivo
+        file_handler = logging.FileHandler(LOG_FILE)
+        file_handler.setLevel(logging.DEBUG)
+
+        # Aplicar el formateador personalizado
+        formatter = CustomFormatter(
+            '[%(asctime)s | %(name)s | %(class_name)s | %(function_name)s | %(levelname)s] %(message)s',
             datefmt='%Y-%m-%d %H:%M:%S'
         )
+        file_handler.setFormatter(formatter)
 
-        self.logger = logging.getLogger('LoggerAVAL')
+        # Evitar duplicados
+        if not self.logger.handlers:
+            self.logger.addHandler(file_handler)
 
     def debug(self, class_name, function_name, description, exc_info=False):
-        """Registra un mensaje de nivel DEBUG."""
         self.logger.debug(
             description,
             extra={'class_name': class_name, 'function_name': function_name},
@@ -35,7 +53,6 @@ class Logger:
         )
 
     def info(self, class_name, function_name, description, exc_info=False):
-        """Registra un mensaje de nivel INFO."""
         self.logger.info(
             description,
             extra={'class_name': class_name, 'function_name': function_name},
@@ -43,7 +60,6 @@ class Logger:
         )
 
     def warning(self, class_name, function_name, description, exc_info=False):
-        """Registra un mensaje de nivel WARNING."""
         self.logger.warning(
             description,
             extra={'class_name': class_name, 'function_name': function_name},
@@ -51,33 +67,29 @@ class Logger:
         )
 
     def error(self, class_name, function_name, description, exc_info=False):
-        """Registra un mensaje de nivel ERROR."""
         self.logger.error(
             description,
             extra={'class_name': class_name, 'function_name': function_name},
-            exc_info=exc_info  # Esto agregará la traza de la excepción
+            exc_info=exc_info
         )
 
     def critical(self, class_name, function_name, description, exc_info=False):
-        """Registra un mensaje de nivel CRITICAL."""
         self.logger.critical(
             description,
             extra={'class_name': class_name, 'function_name': function_name},
             exc_info=exc_info
         )
 
+# Uso del logger
 logger = Logger()
-
-# Registra logs con diferentes niveles, con exc_info=False en este caso
 logger.debug('MiClase', 'mi_funcion', 'Este es un mensaje de debug')
 logger.info('MiClase', 'mi_funcion', 'Este es un mensaje de info')
 logger.warning('MiClase', 'mi_funcion', 'Este es un mensaje de warning')
 
-'''
 # Registra un error con detalles de la excepción
 try:
-    1 / 0  # Esto generará una excepción
+    1 / 0
 except ZeroDivisionError as e:
     logger.error('MiClase', 'mi_funcion', f"Error en la operación: {str(e)}", exc_info=True)
-'''
+
 logger.critical('MiClase', 'mi_funcion', 'Este es un mensaje de critical')
