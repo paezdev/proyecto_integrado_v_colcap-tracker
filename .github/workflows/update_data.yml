@@ -9,29 +9,29 @@ jobs:
   update-data:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout del repositorio
+    - name: Paso 1.) Checkout del repositorio
       uses: actions/checkout@v3
 
-    - name: Configurar Python
+    - name: Paso 2.) Configurar Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.10'
 
-    - name: Instalar dependencias
+    - name: Paso 3.) Instalar dependencias
       run: |
         pip install --upgrade pip
-        pip install --upgrade yfinance pandas
+        pip install .  # Instala el paquete desde el setup.py (en la raíz del proyecto)
 
-    - name: Ejecutar colector
+    - name: Paso 4.) Ejecutar colector
       run: |
         python src/collector.py
 
-    - name: Configurar Git
+    - name: Paso 5.) Configurar Git
       run: |
         git config user.name "github-actions"
         git config user.email "github-actions@github.com"
 
-    - name: Hacer commit y push de los cambios
+    - name: Paso 6.) Hacer commit y push de los cambios
       run: |
         git add src/static/historical.csv log_data.csv
         git commit -m "Actualización automática de datos AVAL"
