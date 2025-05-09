@@ -1,7 +1,7 @@
 import yfinance as yf
 import pandas as pd
 import os
-from logger import setup_logger
+from logger import Logger
 from datetime import datetime
 import csv_logger  # Este es el archivo para escribir el log en formato CSV
 
@@ -10,7 +10,7 @@ class DataCollector:
         """Inicializa el recolector de datos con el símbolo y archivo especificado."""
         self.symbol = symbol
         self.filepath = filepath
-        self.logger = setup_logger()  # Configuración del logger
+        self.logger = Logger()  # Configuración del logger
 
     def fetch_data(self):
         """Descarga los datos de un símbolo usando yfinance."""
