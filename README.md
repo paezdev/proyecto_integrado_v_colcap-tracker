@@ -15,7 +15,6 @@ la trazabilidad y persistencia del histórico.
   * 📋 Archivo `log_data.csv` estructurado, útil para análisis tabular y trazabilidad resumida, gestionado por `csv_logger.py`.
 * 🧱 **Implementación con Programación Orientada a Objetos (OOP)**: El código se organiza utilizando principios de OOP.
 * 🧪 **Recolector de datos con `yfinance` y `pandas`**: Descarga automática desde Yahoo Finanzas.
-* 🛠 **Logger CSV personalizado (`csv_logger.py`)**: Manejador específico que registra eventos en formato estructurado.
 * 📦 **Distribución del paquete con `setup.py`**: Estructura lista para instalación local/remota como paquete Python.
 
 ## ⚙️ Tecnologías utilizadas
