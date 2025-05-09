@@ -1,32 +1,38 @@
 import logging
 import os
 
-# Definir el directorio de logs
-LOG_DIR = "logs"
-os.makedirs(LOG_DIR, exist_ok=True)
+# Directorio del archivo actual
+BASE_DIR = os.path.dirname(__file__)
 
-# Definir la ruta al archivo de log
-LOG_FILE = os.path.join(LOG_DIR, "logfile.log")
+# Subcarpeta específica para logs de texto
+TEXT_LOG_DIR = os.path.join(BASE_DIR, "logs", "text_logs")
+os.makedirs(TEXT_LOG_DIR, exist_ok=True)
 
-# Configuración del logger
+# Ruta completa al archivo .log
+LOG_FILE = os.path.join(TEXT_LOG_DIR, "log_data.log")
+
 def setup_logger():
-    """Configura el sistema de logging para registrar eventos tanto en consola como en archivo."""
+    """Configura el sistema de logging para registrar eventos en consola y archivo."""
     logger = logging.getLogger("LoggerAVAL")
-    logger.setLevel(logging.INFO)  # Nivel de log (INFO para mensajes generales)
+    logger.setLevel(logging.INFO)
 
-    # Formato del log
-    log_format = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+    # Evitar duplicar handlers si ya están configurados
+    if logger.handlers:
+        return logger
 
-    # Manejador de archivo (para guardar logs en un archivo)
-    file_handler = logging.FileHandler(LOG_FILE)
-    file_handler.setFormatter(log_format)
+    # Formato uniforme para los mensajes de log
+    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
 
-    # Manejador de consola (para imprimir los logs en la consola)
-    stream_handler = logging.StreamHandler()
-    stream_handler.setFormatter(log_format)
+    # Log a archivo
+    file_handler = logging.FileHandler(LOG_FILE, mode='a', encoding='utf-8')
+    file_handler.setFormatter(formatter)
 
-    # Añadir manejadores al logger
+    # Log a consola
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(formatter)
+
+    # Agregar handlers al logger
     logger.addHandler(file_handler)
-    logger.addHandler(stream_handler)
+    logger.addHandler(console_handler)
 
     return logger
