@@ -12,8 +12,13 @@ class DataCollector:
 
     def fetch_data(self):
         self.logger.info(f"Descargando datos para {self.symbol}")
+        # Descargar datos incluyendo 'Adj Close'
         df = yf.download(self.symbol, progress=False)
-        df.reset_index(inplace=True)
+        
+        # Verificar que la columna 'Adj Close' esté incluida en el DataFrame
+        if 'Adj Close' not in df.columns:
+            self.logger.error("La columna 'Adj Close' no se ha descargado correctamente.")
+        df.reset_index(inplace=True)  # Asegura que 'Date' sea una columna en vez de índice
         return df
 
     def save_data(self, df):
@@ -67,7 +72,6 @@ if __name__ == "__main__":
 
         # Si todo sale bien, también lo registra como "Éxito"
         log_data_path = "log_data.csv"
-        from datetime import datetime
         log_entry = {
             "Fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "Símbolo": collector.symbol,
@@ -83,7 +87,6 @@ if __name__ == "__main__":
 
         # Registrar error en log_data.csv también
         log_data_path = "log_data.csv"
-        from datetime import datetime
         log_entry = {
             "Fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "Símbolo": collector.symbol,
@@ -93,4 +96,3 @@ if __name__ == "__main__":
             "Estado": f"Error: {str(e)}"
         }
         pd.DataFrame([log_entry]).to_csv(log_data_path, mode='a', header=not os.path.exists(log_data_path), index=False)
-
