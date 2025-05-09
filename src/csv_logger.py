@@ -22,7 +22,15 @@ def write_csv_log(symbol, downloaded_count, new_rows_added, total_count, status)
 
     log_data_path = "log_data.csv"
 
-    # Si el archivo ya existe, solo agregamos la entrada sin encabezado
+    # Solo se escribe el encabezado la primera vez, cuando el archivo no existe
+    file_exists = os.path.exists(log_data_path)
+
     with open(log_data_path, mode='a', newline='') as file:
         writer = csv.DictWriter(file, fieldnames=["Fecha", "Símbolo", "Registros_descargados", "Registros_agregados", "Total_en_archivo", "Estado"])
+        
+        # Si el archivo no existe, se escribe el encabezado
+        if not file_exists:
+            writer.writeheader()
+        
+        # Escribir la nueva entrada
         writer.writerow(log_entry)
