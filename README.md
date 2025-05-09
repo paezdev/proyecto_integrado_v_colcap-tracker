@@ -1,19 +1,19 @@
 ## Proyecto Integrado V - Grupo Aval Tracker (AVAL)
 
-Este proyecto tiene como objetivo automatizar la recolección continua de datos históricos del **Grupo Aval (AVAL)**, 
-una de las principales entidades financieras de Colombia. Los datos se obtienen desde **Yahoo Finanzas**, se almacenan 
-en formato `.csv` y se actualizan automáticamente mediante **GitHub Actions**, manteniendo la trazabilidad y 
-persistencia del histórico.
+Este proyecto tiene como objetivo automatizar la recolección continua de datos históricos del **Grupo Aval (AVAL)**, una de las principales entidades financieras de Colombia. Los datos se obtienen desde **Yahoo Finanzas**, se almacenan en formato `.csv` y se actualizan automáticamente mediante **GitHub Actions**, manteniendo la trazabilidad y persistencia del histórico.
 
 ## 📌 Características
 
 * 🔄 **Automatización diaria con GitHub Actions**: Los datos se actualizan automáticamente cada día a las 12:00 UTC.
 * 📊 **Almacenamiento histórico en `CSV`**: Los datos se mantienen en formato CSV para facilitar su análisis.
-* 🔍 **Logs de ejecución para trazabilidad**: Se guarda un archivo `log_data.csv` con los registros de cada ejecución.
+* 🧾 **Sistema dual de logging**:
+
+  * 📁 Archivos `.log` por ejecución en `text_logs/`, con registros detallados y timestamp.
+  * 📋 Archivo `log_data.csv` estructurado, útil para análisis tabular y trazabilidad resumida, gestionado por `csv_logger.py`.
 * 🧱 **Implementación con Programación Orientada a Objetos (OOP)**: El código se organiza utilizando principios de OOP.
-* 🧪 **Recolector de datos con `yfinance` y `pandas`**: El colector de datos descarga los datos históricos de Yahoo Finanzas y los guarda en un archivo CSV.
-* 🧾 **Logger personalizado en CSV**: Se usa un logger en formato CSV para almacenar logs de ejecución estructurados.
-* 📦 **Distribución del paquete con `setup.py`**: Estructura preparada para instalación como paquete Python local o remoto.
+* 🧪 **Recolector de datos con `yfinance` y `pandas`**: Descarga automática desde Yahoo Finanzas.
+* 🛠 **Logger CSV personalizado (`csv_logger.py`)**: Manejador específico que registra eventos en formato estructurado.
+* 📦 **Distribución del paquete con `setup.py`**: Estructura lista para instalación local/remota como paquete Python.
 
 ## ⚙️ Tecnologías utilizadas
 
@@ -32,7 +32,7 @@ persistencia del histórico.
 ## 📁 Estructura del repositorio
 
 ```
-proyecto_integrado_v_aval/
+proyecto_integrado_v_aval_tracker/
 ├── .github/
 │   └── workflows/
 │       └── update_data.yml          # Flujo automático de actualización con GitHub Actions
@@ -42,14 +42,16 @@ proyecto_integrado_v_aval/
 │
 ├── src/
 │   ├── collector.py                 # Descarga y persistencia de datos
-│   ├── logger.py                    # Configuración base del logger
-│   ├── csv_logger.py                # Manejador personalizado de logs en formato CSV
+│   ├── logger.py                    # Configuración del logger general (archivo .log)
+│   ├── csv_logger.py                # Logger especializado para escribir en log_data.csv
 │   ├── static/
 │   │   └── historical.csv           # Datos históricos de AVAL
 │   └── logs/
-│       └── log_data.csv             # Logs de cada ejecución en formato CSV
+│       ├── log_data.csv             # Log estructurado de ejecuciones (formato CSV)
+│       └── text_logs/
+│           └── aval_analysis_YYYYMMDD_HHMMSS.log  # Logs detallados por ejecución
 │
-├── setup.py                         # Script de configuración para instalación como paquete
+├── setup.py                         # Script de instalación como paquete Python
 ├── README.md
 └── .gitignore
 ```
@@ -69,10 +71,10 @@ proyecto_integrado_v_aval/
    ```
 
 3. **Automatización con GitHub Actions**:
-   GitHub Actions ejecuta automáticamente el flujo en `.github/workflows/update_data.yml` todos los días a las 12:00 UTC.
-   Los datos se actualizan, se almacenan en `historical.csv`, y los logs quedan en `src/logs/log_data.csv`.
+   GitHub ejecuta el flujo `.github/workflows/update_data.yml` diariamente a las 12:00 UTC.
+   Los datos se actualizan en `historical.csv`, los logs detallados se guardan en `text_logs/`
+   y el resumen tabular en `log_data.csv`.
 
 ## 📄 Licencia
 
-Este proyecto es de uso educativo y forma parte de la asignatura **Proyecto Integrado V**, 
-bajo la línea de énfasis en automatización y análisis económico.
+Este proyecto es de uso educativo y forma parte de la asignatura **Proyecto Integrado V**, bajo la línea de énfasis en automatización y análisis económico.
