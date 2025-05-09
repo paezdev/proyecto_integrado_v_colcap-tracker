@@ -1,5 +1,3 @@
----
-
 ## Proyecto Integrado V - Grupo Aval Tracker (AVAL)
 
 Este proyecto tiene como objetivo automatizar la recolección continua de datos históricos del **Grupo Aval (AVAL)**, 
