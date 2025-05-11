@@ -35,7 +35,7 @@ jobs:
     - name: Paso 6.) Hacer commit y push de los cambios
       run: |
         git add src/logs/text_logs/*.log  # Añade todos los archivos .log generados
-        git add src/static/historical.csv src/logs/log_data.csv  # Añade otros archivos que quieras guardar
+        git add src/static/data/historical.csv src/logs/log_data.csv  # Añade otros archivos que quieras guardar
         git commit -m "Actualización automática de datos AVAL" || echo "No changes to commit"  # Hace commit, pero evita error si no hay cambios
         git push https://github.com/${{ github.repository }} HEAD:main  # Hace push al repositorio
       env:

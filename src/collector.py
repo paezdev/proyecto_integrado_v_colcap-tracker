@@ -77,7 +77,7 @@ class DataCollector:
 
 
 if __name__ == "__main__":
-    collector = DataCollector("AVAL", "src/static/historical.csv")
+    collector = DataCollector("AVAL", "src/static/data/historical.csv")
     try:
         data = collector.fetch_data()
         collector.save_data(data)
