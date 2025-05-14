@@ -14,6 +14,7 @@ setup(
         'scikit-learn',
         'streamlit',
         'plotly',
+        "joblib",
         "yfinance>=0.1.64",  # Necesario para descargar datos de Yahoo Finance
     ],
     python_requires=">=3.6",  # Indica la versión mínima de Python
