@@ -10,6 +10,10 @@ setup(
     packages=find_packages(),  # Detecta automáticamente los paquetes
     install_requires=[
         "pandas>=2.2.3",  # Necesario para manipulación de datos
+        'numpy',
+        'scikit-learn',
+        'streamlit',
+        'plotly',
         "yfinance>=0.1.64",  # Necesario para descargar datos de Yahoo Finance
     ],
     python_requires=">=3.6",  # Indica la versión mínima de Python

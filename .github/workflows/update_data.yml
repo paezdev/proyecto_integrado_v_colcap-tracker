@@ -22,20 +22,26 @@ jobs:
       run: |
         pip install --upgrade pip
         pip install .  # Instala dependencias del proyecto
+        pip install streamlit  # Instala streamlit para el dashboard
 
     - name: Paso 4.) Ejecutar colector
-      run: |
-        python src/collector.py  # Ejecuta el script principal.
+      run: python src/collector.py  # Ejecuta el script principal.
 
-    - name: Paso 5.) Configurar Git
+    - name: Paso 5.) Ejecutar enriquecedor
+      run: python src/enricher.py
+
+    - name: Paso 6.) Ejecutar modelador
+      run: python src/modeller.py
+
+    - name: Paso 7.) Configurar Git
       run: |
         git config user.name "github-actions"
         git config user.email "github-actions@github.com"
 
-    - name: Paso 6.) Hacer commit y push de los cambios
+    - name: Paso 8.) Hacer commit y push de los cambios
       run: |
         git add src/logs/text_logs/*.log  # Añade todos los archivos .log generados
-        git add src/static/data/historical.csv src/logs/log_data.csv  # Añade otros archivos que quieras guardar
+        git add src/static/data/historical.csv src/static/data/enriched_historical.csv src/static/models/model.pkl src/static/models/metrics.csv
         git commit -m "Actualización automática de datos AVAL" || echo "No changes to commit"  # Hace commit, pero evita error si no hay cambios
         git push https://github.com/${{ github.repository }} HEAD:main  # Hace push al repositorio
       env:
