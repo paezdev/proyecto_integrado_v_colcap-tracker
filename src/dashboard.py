@@ -21,6 +21,9 @@ st.title("📊 AVAL Stock Analysis Dashboard")
 DATA_PATH = os.path.join('src', 'static', 'data', 'enriched_historical.csv')
 MODEL_PATH = os.path.join('src', 'static', 'models', 'model.pkl')
 METRICS_PATH = os.path.join('src', 'static', 'models', 'metrics.csv')
+SCALER_PATH = os.path.join('src', 'static', 'models', 'scaler.pkl')
+SELECTOR_PATH = os.path.join('src', 'static', 'models', 'feature_selector.pkl')
+FEATURES_PATH = os.path.join('src', 'static', 'models', 'selected_features.csv')
 
 # Cargar datos
 @st.cache_data
@@ -169,16 +172,36 @@ with col2:
     fig_bb.update_layout(title='Bandas de Bollinger')
     st.plotly_chart(fig_bb, use_container_width=True)
 
-# Predicción
-st.subheader("Predicción del Modelo")
+# ======================
+# Predicción con el pipeline completo
+# ======================
+st.subheader("Predicción del Modelo Mejorado")
 try:
     model = joblib.load(MODEL_PATH)
+    scaler = joblib.load(SCALER_PATH)
+    selector = joblib.load(SELECTOR_PATH)
+    selected_features = pd.read_csv(FEATURES_PATH)['0'].tolist()
     metrics = pd.read_csv(METRICS_PATH)
-    
-    last_data = df[['SMA_7', 'SMA_21', 'Volatility_7', 'RSI', 'Momentum', 
-                    'BB_upper', 'BB_lower', 'Month', 'Quarter']].iloc[-1:]
-    prediction = model.predict(last_data)[0]
-    
+
+    # Preprocesar la última fila igual que en el entrenamiento
+    last_data = df.copy().iloc[[-1]]
+    # Asegúrate de que todas las columnas estén presentes
+    all_features = [
+        'High AVAL', 'Low AVAL', 'Open AVAL', 'Volume AVAL', 'Month', 'Year', 'Quarter', 'SMA_7', 'SMA_21',
+        'Volatility_7', 'Daily_Return', 'RSI', 'Momentum', 'BB_middle', 'BB_upper', 'BB_lower', 'Day_of_Week_Num',
+        'Month_Sin', 'Month_Cos', 'Day_of_Week_Sin', 'Day_of_Week_Cos', 'Price_Ratio', 'High_Low_Ratio',
+        'Volume_Change', 'Volatility_14', 'Volatility_30', 'ROC_5', 'ROC_10', 'ROC_20', 'EMA_5', 'EMA_10', 'EMA_20',
+        'SMA_EMA_5_Diff', 'SMA_EMA_10_Diff'
+    ]
+    for col in all_features:
+        if col not in last_data.columns:
+            last_data[col] = 0  # Valor por defecto
+
+    X_last = last_data[all_features]
+    X_last_scaled = scaler.transform(X_last)
+    X_last_selected = selector.transform(X_last_scaled)
+    prediction = model.predict(X_last_selected)[0]
+
     col1, col2, col3 = st.columns(3)
     with col1:
         st.metric(
@@ -191,17 +214,15 @@ try:
     with col3:
         st.metric("R² del Modelo", f"{metrics['R2'].iloc[0]:.4f}")
 except Exception as e:
-    st.error(f"Error al cargar el modelo: {e}")
+    st.error(f"Error al cargar el modelo mejorado: {e}")
 
 # Información adicional
 with st.expander("ℹ️ Información del Dataset"):
     st.write("Estadísticas Descriptivas:")
-    # Crear una copia del DataFrame sin la columna Date para mostrar estadísticas
     stats_df = df.drop(columns=['Date']).describe()
     st.dataframe(stats_df)
 
     st.write("Últimos Registros:")
-    # Convertir la columna Date a string antes de mostrarla
     display_df = df.copy()
     display_df['Date'] = display_df['Date'].dt.strftime('%Y-%m-%d')
     st.dataframe(display_df.tail())

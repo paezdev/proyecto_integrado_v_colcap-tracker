@@ -46,10 +46,48 @@ class DataEnricher:
         self.df['BB_upper'] = self.df['BB_middle'] + (std_dev * 2)
         self.df['BB_lower'] = self.df['BB_middle'] - (std_dev * 2)
 
+    def add_advanced_features(self):
+        """Añade características avanzadas para mejorar el modelo"""
+        # Características cíclicas para variables temporales
+        self.df['Month_Sin'] = np.sin(2 * np.pi * self.df['Month']/12)
+        self.df['Month_Cos'] = np.cos(2 * np.pi * self.df['Month']/12)
+
+        # Convertir Day_of_Week a numérico
+        day_map = {'Monday': 0, 'Tuesday': 1, 'Wednesday': 2, 'Thursday': 3, 'Friday': 4, 'Saturday': 5, 'Sunday': 6}
+        self.df['Day_of_Week_Num'] = self.df['Day_of_Week'].map(day_map)
+
+        # Características cíclicas para día de la semana
+        self.df['Day_of_Week_Sin'] = np.sin(2 * np.pi * self.df['Day_of_Week_Num']/7)
+        self.df['Day_of_Week_Cos'] = np.cos(2 * np.pi * self.df['Day_of_Week_Num']/7)
+
+        # Características de tendencia
+        self.df['Price_Ratio'] = self.df['Close AVAL'] / self.df['Open AVAL']
+        self.df['High_Low_Ratio'] = self.df['High AVAL'] / self.df['Low AVAL']
+        self.df['Volume_Change'] = self.df['Volume AVAL'].pct_change()
+
+        # Características de volatilidad adicionales
+        self.df['Volatility_14'] = self.df['Close AVAL'].rolling(window=14).std()
+        self.df['Volatility_30'] = self.df['Close AVAL'].rolling(window=30).std()
+
+        # Características de momentum adicionales
+        self.df['ROC_5'] = self.df['Close AVAL'].pct_change(periods=5)
+        self.df['ROC_10'] = self.df['Close AVAL'].pct_change(periods=10)
+        self.df['ROC_20'] = self.df['Close AVAL'].pct_change(periods=20)
+
+        # Medias móviles exponenciales
+        self.df['EMA_5'] = self.df['Close AVAL'].ewm(span=5, adjust=False).mean()
+        self.df['EMA_10'] = self.df['Close AVAL'].ewm(span=10, adjust=False).mean()
+        self.df['EMA_20'] = self.df['Close AVAL'].ewm(span=20, adjust=False).mean()
+
+        # Características de divergencia
+        self.df['SMA_EMA_5_Diff'] = self.df['SMA_7'] - self.df['EMA_5']
+        self.df['SMA_EMA_10_Diff'] = self.df['SMA_21'] - self.df['EMA_10']
+
     def enrich_data(self, output_file):
         """Ejecuta todo el proceso de enriquecimiento"""
         self.add_temporal_features()
         self.add_technical_indicators()
+        self.add_advanced_features()  # Añadir esta línea
 
         # Crear el directorio si no existe
         output_dir = os.path.join('src', 'static', 'data')
