@@ -2,20 +2,23 @@ from setuptools import setup, find_packages
 
 setup(
     name="proyecto_integrado_v_aval_tracker",
-    version="0.0.1",
+    version="0.0.2",
     author="Jean Carlos Páez Ramírez",
     author_email="",
-    description="Paquete para descargas de datos del grupo AVAL de Yahoo Finance",
-    py_modules=["actividad_1"],
-    packages=find_packages(),  # Detecta automáticamente los paquetes
+    description="Paquete para análisis y predicción de acciones del grupo AVAL usando datos de Yahoo Finance",
+    packages=find_packages(where="src"),  # Busca paquetes en la carpeta src
+    package_dir={"": "src"},              # Indica que los paquetes están en src
     install_requires=[
-        "pandas>=2.2.3",  # Necesario para manipulación de datos
-        'numpy',
-        'scikit-learn',
-        'streamlit',
-        'plotly',
+        "pandas>=2.2.3",
+        "numpy",
+        "scikit-learn",
+        "streamlit",
+        "plotly",
         "joblib",
-        "yfinance>=0.1.64",  # Necesario para descargar datos de Yahoo Finance
+        "yfinance>=0.1.64",
+        "matplotlib",
+        "seaborn"
     ],
-    python_requires=">=3.6",  # Indica la versión mínima de Python
+    python_requires=">=3.8",  # Mejor usar 3.8+ para compatibilidad
+    include_package_data=True,
 )
