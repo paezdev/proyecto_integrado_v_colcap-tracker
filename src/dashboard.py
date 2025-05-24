@@ -26,7 +26,7 @@ METRICS_PATH = os.path.join('src', 'static', 'models', 'metrics.csv')
 @st.cache_data
 def load_data():
     df = pd.read_csv(DATA_PATH)
-    df['Date'] = pd.to_datetime(df['Date'])
+    df['Date'] = pd.to_datetime(df['Date'], errors='coerce').dt.floor('ms')
     return df
 
 try:
@@ -196,7 +196,12 @@ except Exception as e:
 # Información adicional
 with st.expander("ℹ️ Información del Dataset"):
     st.write("Estadísticas Descriptivas:")
-    st.dataframe(df.describe())
-    
+    # Crear una copia del DataFrame sin la columna Date para mostrar estadísticas
+    stats_df = df.drop(columns=['Date']).describe()
+    st.dataframe(stats_df)
+
     st.write("Últimos Registros:")
-    st.dataframe(df.tail())
+    # Convertir la columna Date a string antes de mostrarla
+    display_df = df.copy()
+    display_df['Date'] = display_df['Date'].dt.strftime('%Y-%m-%d')
+    st.dataframe(display_df.tail())

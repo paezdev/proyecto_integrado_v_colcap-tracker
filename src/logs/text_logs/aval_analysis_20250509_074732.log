@@ -1,5 +1,0 @@
-2025-05-09 07:47:32,350 - INFO - LoggerAVAL - fetch_data - Line 17 - Descargando datos para AVAL
-2025-05-09 07:47:32,912 - INFO - LoggerAVAL - save_data - Line 55 - Datos guardados en src/static/historical.csv
-2025-05-09 07:47:32,912 - INFO - LoggerAVAL - save_data - Line 56 - Registros descargados: 2673
-2025-05-09 07:47:32,912 - INFO - LoggerAVAL - save_data - Line 57 - Nuevos registros agregados: 0
-2025-05-09 07:47:32,912 - INFO - LoggerAVAL - save_data - Line 58 - Total de registros en el archivo: 2673
