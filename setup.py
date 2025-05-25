@@ -17,7 +17,8 @@ setup(
         "joblib",
         "yfinance>=0.1.64",
         "matplotlib",
-        "seaborn"
+        "seaborn",
+        "statsmodels"
     ],
     python_requires=">=3.8",  # Mejor usar 3.8+ para compatibilidad
     include_package_data=True,
