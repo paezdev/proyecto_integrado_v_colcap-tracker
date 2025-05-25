@@ -20,7 +20,7 @@ st.title("📊 AVAL Stock Analysis Dashboard")
 
 # Definir rutas relativas
 DATA_PATH = os.path.join('src', 'static', 'data', 'enriched_historical.csv')
-HISTORICAL_PATH = os.path.join('historical.csv')  # Ajusta si tu archivo está en otra ruta
+HISTORICAL_PATH = os.path.join('src', 'static', 'data', 'historical.csv')  # Ajusta si tu archivo está en otra ruta
 MODEL_PATH = os.path.join('src', 'static', 'models', 'model.pkl')
 METRICS_PATH = os.path.join('src', 'static', 'models', 'metrics.csv')
 SCALER_PATH = os.path.join('src', 'static', 'models', 'scaler.pkl')
