@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
-from datetime import datetime
 import numpy as np
 import joblib
 import os
@@ -14,7 +13,6 @@ st.set_page_config(
     layout="wide"
 )
 
-# Título principal
 st.title("📊 AVAL Stock Analysis Dashboard")
 
 # Definir rutas relativas
@@ -45,6 +43,14 @@ year_range = st.sidebar.slider(
     min_value=int(df['Year'].min()),
     max_value=int(df['Year'].max()),
     value=(int(df['Year'].min()), int(df['Year'].max()))
+)
+
+# Selección de medias móviles a visualizar
+ma_options = ['SMA_21', 'SMA_50', 'SMA_100', 'SMA_200']
+selected_mas = st.sidebar.multiselect(
+    "Medias Móviles a Visualizar",
+    options=ma_options,
+    default=['SMA_21', 'SMA_50', 'SMA_200']
 )
 
 # Filtrar datos por año
@@ -93,7 +99,7 @@ with col5:
         "Sobrecomprado" if rsi > 70 else "Sobrevendido" if rsi < 30 else "Normal"
     )
 
-# Gráficos
+# Gráficos principales
 st.subheader("Análisis de Precio y Volumen")
 fig = go.Figure()
 
@@ -106,15 +112,41 @@ fig.add_trace(go.Candlestick(
     name='OHLC'
 ))
 
+# Agregar medias móviles seleccionadas
+ma_colors = {
+    'SMA_21': 'orange',
+    'SMA_50': 'green',
+    'SMA_100': 'blue',
+    'SMA_200': 'purple'
+}
+for ma in selected_mas:
+    fig.add_trace(go.Scatter(
+        x=filtered_df['Date'],
+        y=filtered_df[ma],
+        name=ma,
+        line=dict(color=ma_colors.get(ma, 'gray'), dash='solid')
+    ))
+
+# Visualización de cruces de medias móviles
+cross_5_20 = filtered_df[filtered_df['SMA_Cross_5_20'] == 1]
+cross_10_50 = filtered_df[filtered_df['SMA_Cross_10_50'] == 1]
 fig.add_trace(go.Scatter(
-    x=filtered_df['Date'],
-    y=filtered_df['SMA_21'],
-    name='SMA 21',
-    line=dict(color='orange')
+    x=cross_5_20['Date'],
+    y=cross_5_20['Adj Close AVAL'],
+    mode='markers',
+    marker=dict(color='red', size=8, symbol='triangle-up'),
+    name='Cruz EMA5>EMA20'
+))
+fig.add_trace(go.Scatter(
+    x=cross_10_50['Date'],
+    y=cross_10_50['Adj Close AVAL'],
+    mode='markers',
+    marker=dict(color='cyan', size=8, symbol='star'),
+    name='Cruz EMA10>SMA50'
 ))
 
 fig.update_layout(
-    title='Precio AVAL y Media Móvil 21 días',
+    title='Precio AVAL y Medias Móviles',
     yaxis_title='Precio',
     xaxis_title='Fecha',
     template='plotly_dark'
@@ -185,34 +217,60 @@ try:
 
     # Preprocesar la última fila igual que en el entrenamiento
     last_data = df.copy().iloc[[-1]]
-    # Asegúrate de que todas las columnas estén presentes
     all_features = [
-        'High AVAL', 'Low AVAL', 'Open AVAL', 'Volume AVAL', 'Month', 'Year', 'Quarter', 'SMA_7', 'SMA_21',
-        'Volatility_7', 'Daily_Return', 'RSI', 'Momentum', 'BB_middle', 'BB_upper', 'BB_lower', 'Day_of_Week_Num',
-        'Month_Sin', 'Month_Cos', 'Day_of_Week_Sin', 'Day_of_Week_Cos', 'Price_Ratio', 'High_Low_Ratio',
-        'Volume_Change', 'Volatility_14', 'Volatility_30', 'ROC_5', 'ROC_10', 'ROC_20', 'EMA_5', 'EMA_10', 'EMA_20',
-        'SMA_EMA_5_Diff', 'SMA_EMA_10_Diff'
+        'High AVAL', 'Low AVAL', 'Open AVAL', 'Volume AVAL',
+        'Month', 'Year', 'Quarter', 'SMA_7', 'SMA_21',
+        'SMA_50', 'SMA_100', 'SMA_200',
+        'Volatility_7', 'Daily_Return', 'RSI', 'Momentum',
+        'BB_middle', 'BB_upper', 'BB_lower', 'Day_of_Week_Num',
+        'Month_Sin', 'Month_Cos', 'Day_of_Week_Sin', 'Day_of_Week_Cos',
+        'Price_Ratio', 'High_Low_Ratio', 'Volume_Change',
+        'Volatility_14', 'Volatility_30', 'ROC_5', 'ROC_10', 'ROC_20',
+        'EMA_5', 'EMA_10', 'EMA_20', 'SMA_EMA_5_Diff', 'SMA_EMA_10_Diff',
+        'SMA_Cross_5_20', 'SMA_Cross_10_50', 'Volatility_Ratio_7_30'
     ]
     for col in all_features:
         if col not in last_data.columns:
             last_data[col] = 0  # Valor por defecto
 
-    X_last = last_data[all_features]
+    # Solo selecciona las features seleccionadas por el modelo
+    X_last = last_data[selected_features]
     X_last_scaled = scaler.transform(X_last)
     X_last_selected = selector.transform(X_last_scaled)
     prediction = model.predict(X_last_selected)[0]
+
+    # Señal de trading
+    last_value = last_data['Adj Close AVAL'].values[0]
+    percent_change = ((prediction - last_value) / last_value) * 100
+    if percent_change > 0:
+        signal = f"COMPRA (↑ {percent_change:.2f}%)"
+    elif percent_change < 0:
+        signal = f"VENTA (↓ {abs(percent_change):.2f}%)"
+    else:
+        signal = "MANTENER (sin cambio)"
 
     col1, col2, col3 = st.columns(3)
     with col1:
         st.metric(
             "Predicción Próximo Día",
             f"${prediction:.2f}",
-            f"{(prediction - df['Adj Close AVAL'].iloc[-1]):.2f}"
+            f"{(prediction - last_value):.2f}"
         )
+        st.write(f"**Señal:** {signal}")
     with col2:
         st.metric("RMSE del Modelo", f"{metrics['RMSE'].iloc[0]:.4f}")
     with col3:
         st.metric("R² del Modelo", f"{metrics['R2'].iloc[0]:.4f}")
+
+    # Importancia de features (si la guardaste)
+    st.subheader("Importancia de las Features Seleccionadas")
+    if hasattr(model, 'coef_'):
+        importances = pd.Series(model.coef_, index=selected_features)
+        importances = importances.abs().sort_values(ascending=False)
+        st.bar_chart(importances)
+    else:
+        st.info("El modelo no tiene coeficientes de importancia disponibles.")
+
 except Exception as e:
     st.error(f"Error al cargar el modelo mejorado: {e}")
 
