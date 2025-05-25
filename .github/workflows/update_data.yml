@@ -40,13 +40,13 @@ jobs:
 
     - name: Paso 8.) Hacer commit y push de los cambios
       run: |
-        git add src/logs/text_logs/*.log
-        git add src/static/data/historical.csv src/static/data/enriched_historical.csv
-        git add src/static/models/model.pkl src/static/models/metrics.csv
-        git add src/static/models/scaler.pkl src/static/models/feature_selector.pkl src/static/models/selected_features.csv
-        git add src/static/models/plots/*.png
-        git add src/static/predictions/*.csv
+        git add -A src/logs/text_logs/
+        git add -A src/static/data/
+        git add -A src/static/models/
+        git add -A src/static/models/plots/
+        git add -A src/static/predictions/
+        git status
         git commit -m "Actualización automática de datos AVAL" || echo "No changes to commit"
         git push https://github.com/${{ github.repository }} HEAD:main
       env:
-        GH_TOKEN: ${{ secrets.GH_TOKEN }}  # Usamos un token para autenticarnos y hacer el push
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
