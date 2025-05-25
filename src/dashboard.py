@@ -233,8 +233,11 @@ try:
         if col not in last_data.columns:
             last_data[col] = 0  # Valor por defecto
 
-    # Solo selecciona las features seleccionadas por el modelo
-    X_last = last_data[selected_features]
+    # Usar TODAS las features disponibles, no solo las seleccionadas
+    available_features = [col for col in all_features if col in last_data.columns]
+    X_last = last_data[available_features]
+
+    # Escalar y seleccionar
     X_last_scaled = scaler.transform(X_last)
     X_last_selected = selector.transform(X_last_scaled)
     prediction = model.predict(X_last_selected)[0]
