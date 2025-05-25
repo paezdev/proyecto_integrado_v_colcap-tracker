@@ -36,8 +36,13 @@ except Exception as e:
     st.error(f"Error al cargar los datos: {e}")
     st.stop()
 
-# Sidebar con filtros
+# Sidebar con filtros y mejoras
 st.sidebar.header("Filtros")
+
+# Botón para resetear filtros
+if st.sidebar.button("Resetear filtros"):
+    st.experimental_rerun()
+
 year_range = st.sidebar.slider(
     "Seleccionar Rango de Años",
     min_value=int(df['Year'].min()),
@@ -53,11 +58,21 @@ selected_mas = st.sidebar.multiselect(
     default=['SMA_21', 'SMA_50', 'SMA_200']
 )
 
+# Selector de indicadores técnicos
+indicator_options = ['RSI', 'Bandas de Bollinger', 'Volatilidad', 'Momentum']
+selected_indicators = st.sidebar.multiselect(
+    "Indicadores Técnicos a Visualizar",
+    options=indicator_options,
+    default=['RSI', 'Bandas de Bollinger']
+)
+
 # Filtrar datos por año
 mask = (df['Year'] >= year_range[0]) & (df['Year'] <= year_range[1])
-filtered_df = df[mask]
+filtered_df = df[mask].copy()
 
+# ======================
 # KPIs en la parte superior
+# ======================
 col1, col2, col3, col4, col5 = st.columns(5)
 
 with col1:
@@ -66,6 +81,8 @@ with col1:
         f"${filtered_df['Adj Close AVAL'].iloc[-1]:.2f}",
         f"{filtered_df['Daily_Return'].iloc[-1]*100:.2f}%"
     )
+    with st.expander("¿Qué es el Precio Actual?"):
+        st.write("El precio ajustado de cierre del último día disponible en el rango seleccionado.")
 
 with col2:
     volatility = filtered_df['Volatility_7'].iloc[-1]
@@ -74,6 +91,8 @@ with col2:
         f"{volatility:.2f}",
         f"{(volatility - filtered_df['Volatility_7'].iloc[-2]):.2f}"
     )
+    with st.expander("¿Qué es la Volatilidad?"):
+        st.write("La volatilidad mide la variabilidad de los precios en los últimos 7 días.")
 
 with col3:
     current_sma = filtered_df['SMA_21'].iloc[-1]
@@ -82,6 +101,8 @@ with col3:
         f"${current_sma:.2f}",
         f"{(current_sma - filtered_df['Adj Close AVAL'].iloc[-1]):.2f}"
     )
+    with st.expander("¿Qué es la Media Móvil?"):
+        st.write("La media móvil suaviza el precio para identificar tendencias.")
 
 with col4:
     cumulative_return = (filtered_df['Cumulative_Return'].iloc[-1] - 1) * 100
@@ -90,6 +111,8 @@ with col4:
         f"{cumulative_return:.2f}%",
         f"{filtered_df['Daily_Return'].iloc[-1]*100:.2f}%"
     )
+    with st.expander("¿Qué es el Retorno Acumulado?"):
+        st.write("El retorno acumulado muestra la ganancia o pérdida total desde el inicio del periodo.")
 
 with col5:
     rsi = filtered_df['RSI'].iloc[-1]
@@ -98,8 +121,12 @@ with col5:
         f"{rsi:.2f}",
         "Sobrecomprado" if rsi > 70 else "Sobrevendido" if rsi < 30 else "Normal"
     )
+    with st.expander("¿Qué es el RSI?"):
+        st.write("El RSI (Relative Strength Index) es un indicador de momentum que mide la fuerza de los movimientos de precio.")
 
-# Gráficos principales
+# ======================
+# Gráficos principales con zoom y señales
+# ======================
 st.subheader("Análisis de Precio y Volumen")
 fig = go.Figure()
 
@@ -145,64 +172,150 @@ fig.add_trace(go.Scatter(
     name='Cruz EMA10>SMA50'
 ))
 
+# Señales de trading (si tienes una columna 'Señal' en tu dataframe)
+if 'Señal' in filtered_df.columns:
+    buy_signals = filtered_df[filtered_df['Señal'] == 'COMPRA']
+    sell_signals = filtered_df[filtered_df['Señal'] == 'VENTA']
+    fig.add_trace(go.Scatter(
+        x=buy_signals['Date'],
+        y=buy_signals['Adj Close AVAL'],
+        mode='markers',
+        marker=dict(color='green', size=10, symbol='triangle-up'),
+        name='Señal de Compra'
+    ))
+    fig.add_trace(go.Scatter(
+        x=sell_signals['Date'],
+        y=sell_signals['Adj Close AVAL'],
+        mode='markers',
+        marker=dict(color='red', size=10, symbol='triangle-down'),
+        name='Señal de Venta'
+    ))
+
+# Zoom y rango interactivo
 fig.update_layout(
     title='Precio AVAL y Medias Móviles',
     yaxis_title='Precio',
     xaxis_title='Fecha',
-    template='plotly_dark'
+    template='plotly_dark',
+    xaxis=dict(
+        rangeselector=dict(
+            buttons=list([
+                dict(count=1, label="1m", step="month", stepmode="backward"),
+                dict(count=6, label="6m", step="month", stepmode="backward"),
+                dict(count=1, label="YTD", step="year", stepmode="todate"),
+                dict(count=1, label="1y", step="year", stepmode="backward"),
+                dict(step="all")
+            ])
+        ),
+        rangeslider=dict(visible=True),
+        type="date"
+    )
 )
 
 st.plotly_chart(fig, use_container_width=True)
 
-# Gráfico de volumen
-volume_fig = px.bar(
-    filtered_df,
-    x='Date',
-    y='Volume AVAL',
-    title='Volumen de Negociación'
+# ======================
+# Gráfico de volumen con media móvil
+# ======================
+filtered_df['Volume_MA_21'] = filtered_df['Volume AVAL'].rolling(window=21).mean()
+volume_fig = go.Figure()
+volume_fig.add_trace(go.Bar(
+    x=filtered_df['Date'],
+    y=filtered_df['Volume AVAL'],
+    name='Volumen'
+))
+volume_fig.add_trace(go.Scatter(
+    x=filtered_df['Date'],
+    y=filtered_df['Volume_MA_21'],
+    name='Volumen MA 21d',
+    line=dict(color='orange', dash='dot')
+))
+volume_fig.update_layout(
+    title='Volumen de Negociación',
+    yaxis_title='Volumen',
+    xaxis_title='Fecha',
+    template='plotly_dark',
+    xaxis=dict(
+        rangeslider=dict(visible=True),
+        type="date"
+    )
 )
 st.plotly_chart(volume_fig, use_container_width=True)
 
-# Indicadores técnicos
+# ======================
+# Indicadores técnicos seleccionados
+# ======================
 col1, col2 = st.columns(2)
 
-with col1:
-    # RSI
-    fig_rsi = go.Figure()
-    fig_rsi.add_trace(go.Scatter(
-        x=filtered_df['Date'],
-        y=filtered_df['RSI'],
-        name='RSI'
-    ))
-    fig_rsi.add_hline(y=70, line_dash="dash", line_color="red")
-    fig_rsi.add_hline(y=30, line_dash="dash", line_color="green")
-    fig_rsi.update_layout(title='Relative Strength Index (RSI)')
-    st.plotly_chart(fig_rsi, use_container_width=True)
+if 'RSI' in selected_indicators:
+    with col1:
+        fig_rsi = go.Figure()
+        fig_rsi.add_trace(go.Scatter(
+            x=filtered_df['Date'],
+            y=filtered_df['RSI'],
+            name='RSI'
+        ))
+        fig_rsi.add_hline(y=70, line_dash="dash", line_color="red")
+        fig_rsi.add_hline(y=30, line_dash="dash", line_color="green")
+        fig_rsi.update_layout(title='Relative Strength Index (RSI)')
+        st.plotly_chart(fig_rsi, use_container_width=True)
 
-with col2:
-    # Bandas de Bollinger
-    fig_bb = go.Figure()
-    fig_bb.add_trace(go.Scatter(
-        x=filtered_df['Date'],
-        y=filtered_df['BB_upper'],
-        name='Banda Superior',
-        line=dict(color='gray', dash='dash')
-    ))
-    fig_bb.add_trace(go.Scatter(
-        x=filtered_df['Date'],
-        y=filtered_df['BB_middle'],
-        name='Media Móvil',
-        line=dict(color='blue')
-    ))
-    fig_bb.add_trace(go.Scatter(
-        x=filtered_df['Date'],
-        y=filtered_df['BB_lower'],
-        name='Banda Inferior',
-        line=dict(color='gray', dash='dash'),
-        fill='tonexty'
-    ))
-    fig_bb.update_layout(title='Bandas de Bollinger')
-    st.plotly_chart(fig_bb, use_container_width=True)
+if 'Bandas de Bollinger' in selected_indicators:
+    with col2:
+        fig_bb = go.Figure()
+        fig_bb.add_trace(go.Scatter(
+            x=filtered_df['Date'],
+            y=filtered_df['BB_upper'],
+            name='Banda Superior',
+            line=dict(color='gray', dash='dash')
+        ))
+        fig_bb.add_trace(go.Scatter(
+            x=filtered_df['Date'],
+            y=filtered_df['BB_middle'],
+            name='Media Móvil',
+            line=dict(color='blue')
+        ))
+        fig_bb.add_trace(go.Scatter(
+            x=filtered_df['Date'],
+            y=filtered_df['BB_lower'],
+            name='Banda Inferior',
+            line=dict(color='gray', dash='dash'),
+            fill='tonexty'
+        ))
+        fig_bb.update_layout(title='Bandas de Bollinger')
+        st.plotly_chart(fig_bb, use_container_width=True)
+
+if 'Volatilidad' in selected_indicators:
+    with col1:
+        fig_vol = go.Figure()
+        fig_vol.add_trace(go.Scatter(
+            x=filtered_df['Date'],
+            y=filtered_df['Volatility_7'],
+            name='Volatilidad 7d'
+        ))
+        fig_vol.add_trace(go.Scatter(
+            x=filtered_df['Date'],
+            y=filtered_df['Volatility_14'],
+            name='Volatilidad 14d'
+        ))
+        fig_vol.add_trace(go.Scatter(
+            x=filtered_df['Date'],
+            y=filtered_df['Volatility_30'],
+            name='Volatilidad 30d'
+        ))
+        fig_vol.update_layout(title='Volatilidad')
+        st.plotly_chart(fig_vol, use_container_width=True)
+
+if 'Momentum' in selected_indicators:
+    with col2:
+        fig_mom = go.Figure()
+        fig_mom.add_trace(go.Scatter(
+            x=filtered_df['Date'],
+            y=filtered_df['Momentum'],
+            name='Momentum'
+        ))
+        fig_mom.update_layout(title='Momentum')
+        st.plotly_chart(fig_mom, use_container_width=True)
 
 # ======================
 # Predicción con el pipeline completo
@@ -277,7 +390,22 @@ try:
 except Exception as e:
     st.error(f"Error al cargar el modelo mejorado: {e}")
 
+# ======================
+# Historial de señales y exportación
+# ======================
+if 'Señal' in filtered_df.columns:
+    st.subheader("Historial de Señales de Trading")
+    st.dataframe(filtered_df[['Date', 'Adj Close AVAL', 'Señal']].tail(10))
+    st.download_button(
+        label="Descargar historial de señales",
+        data=filtered_df[['Date', 'Adj Close AVAL', 'Señal']].to_csv(index=False),
+        file_name='historial_senales.csv',
+        mime='text/csv'
+    )
+
+# ======================
 # Información adicional
+# ======================
 with st.expander("ℹ️ Información del Dataset"):
     st.write("Estadísticas Descriptivas:")
     stats_df = df.drop(columns=['Date']).describe()
