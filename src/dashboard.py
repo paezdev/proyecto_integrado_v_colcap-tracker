@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
-from datetime import datetime
 import numpy as np
 import joblib
 import os
@@ -44,6 +43,14 @@ year_range = st.sidebar.slider(
     min_value=int(df['Year'].min()),
     max_value=int(df['Year'].max()),
     value=(int(df['Year'].min()), int(df['Year'].max()))
+)
+
+# Selección de medias móviles a visualizar
+ma_options = ['SMA_21', 'SMA_50', 'SMA_100', 'SMA_200']
+selected_mas = st.sidebar.multiselect(
+    "Medias Móviles a Visualizar",
+    options=ma_options,
+    default=['SMA_21', 'SMA_50', 'SMA_200']
 )
 
 # Filtrar datos por año
@@ -105,25 +112,37 @@ fig.add_trace(go.Candlestick(
     name='OHLC'
 ))
 
-fig.add_trace(go.Scatter(
-    x=filtered_df['Date'],
-    y=filtered_df['SMA_21'],
-    name='SMA 21',
-    line=dict(color='orange')
-))
+# Agregar medias móviles seleccionadas
+ma_colors = {
+    'SMA_21': 'orange',
+    'SMA_50': 'green',
+    'SMA_100': 'blue',
+    'SMA_200': 'purple'
+}
+for ma in selected_mas:
+    fig.add_trace(go.Scatter(
+        x=filtered_df['Date'],
+        y=filtered_df[ma],
+        name=ma,
+        line=dict(color=ma_colors.get(ma, 'gray'), dash='solid')
+    ))
 
-# Puedes agregar más medias móviles si lo deseas:
+# Visualización de cruces de medias móviles
+cross_5_20 = filtered_df[filtered_df['SMA_Cross_5_20'] == 1]
+cross_10_50 = filtered_df[filtered_df['SMA_Cross_10_50'] == 1]
 fig.add_trace(go.Scatter(
-    x=filtered_df['Date'],
-    y=filtered_df['SMA_50'],
-    name='SMA 50',
-    line=dict(color='green', dash='dot')
+    x=cross_5_20['Date'],
+    y=cross_5_20['Adj Close AVAL'],
+    mode='markers',
+    marker=dict(color='red', size=8, symbol='triangle-up'),
+    name='Cruz EMA5>EMA20'
 ))
 fig.add_trace(go.Scatter(
-    x=filtered_df['Date'],
-    y=filtered_df['SMA_200'],
-    name='SMA 200',
-    line=dict(color='purple', dash='dash')
+    x=cross_10_50['Date'],
+    y=cross_10_50['Adj Close AVAL'],
+    mode='markers',
+    marker=dict(color='cyan', size=8, symbol='star'),
+    name='Cruz EMA10>SMA50'
 ))
 
 fig.update_layout(
@@ -220,17 +239,38 @@ try:
     X_last_selected = selector.transform(X_last_scaled)
     prediction = model.predict(X_last_selected)[0]
 
+    # Señal de trading
+    last_value = last_data['Adj Close AVAL'].values[0]
+    percent_change = ((prediction - last_value) / last_value) * 100
+    if percent_change > 0:
+        signal = f"COMPRA (↑ {percent_change:.2f}%)"
+    elif percent_change < 0:
+        signal = f"VENTA (↓ {abs(percent_change):.2f}%)"
+    else:
+        signal = "MANTENER (sin cambio)"
+
     col1, col2, col3 = st.columns(3)
     with col1:
         st.metric(
             "Predicción Próximo Día",
             f"${prediction:.2f}",
-            f"{(prediction - df['Adj Close AVAL'].iloc[-1]):.2f}"
+            f"{(prediction - last_value):.2f}"
         )
+        st.write(f"**Señal:** {signal}")
     with col2:
         st.metric("RMSE del Modelo", f"{metrics['RMSE'].iloc[0]:.4f}")
     with col3:
         st.metric("R² del Modelo", f"{metrics['R2'].iloc[0]:.4f}")
+
+    # Importancia de features (si la guardaste)
+    st.subheader("Importancia de las Features Seleccionadas")
+    if hasattr(model, 'coef_'):
+        importances = pd.Series(model.coef_, index=selected_features)
+        importances = importances.abs().sort_values(ascending=False)
+        st.bar_chart(importances)
+    else:
+        st.info("El modelo no tiene coeficientes de importancia disponibles.")
+
 except Exception as e:
     st.error(f"Error al cargar el modelo mejorado: {e}")
 
