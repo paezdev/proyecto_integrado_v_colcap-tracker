@@ -27,12 +27,15 @@ class StockPredictor:
         self.all_features = [
             'High AVAL', 'Low AVAL', 'Open AVAL', 'Volume AVAL',
             'Month', 'Year', 'Quarter', 'SMA_7', 'SMA_21',
+            'SMA_50', 'SMA_100', 'SMA_200',  # <-- nuevas medias móviles largas
             'Volatility_7', 'Daily_Return', 'RSI', 'Momentum',
             'BB_middle', 'BB_upper', 'BB_lower', 'Day_of_Week_Num',
             'Month_Sin', 'Month_Cos', 'Day_of_Week_Sin', 'Day_of_Week_Cos',
             'Price_Ratio', 'High_Low_Ratio', 'Volume_Change',
             'Volatility_14', 'Volatility_30', 'ROC_5', 'ROC_10', 'ROC_20',
-            'EMA_5', 'EMA_10', 'EMA_20', 'SMA_EMA_5_Diff', 'SMA_EMA_10_Diff'
+            'EMA_5', 'EMA_10', 'EMA_20', 'SMA_EMA_5_Diff', 'SMA_EMA_10_Diff',
+            'SMA_Cross_5_20', 'SMA_Cross_10_50',  # <-- nuevos cruces de medias móviles
+            'Volatility_Ratio_7_30'               # <-- nueva volatilidad relativa
         ]
 
     def prepare_data(self):

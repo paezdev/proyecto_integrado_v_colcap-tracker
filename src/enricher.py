@@ -22,6 +22,9 @@ class DataEnricher:
         # Medias móviles
         self.df['SMA_7'] = self.df['Adj Close AVAL'].rolling(window=7).mean()
         self.df['SMA_21'] = self.df['Adj Close AVAL'].rolling(window=21).mean()
+        self.df['SMA_50'] = self.df['Close AVAL'].rolling(window=50).mean()
+        self.df['SMA_100'] = self.df['Close AVAL'].rolling(window=100).mean()
+        self.df['SMA_200'] = self.df['Close AVAL'].rolling(window=200).mean()
 
         # Volatilidad
         self.df['Volatility_7'] = self.df['Adj Close AVAL'].rolling(window=7).std()
@@ -83,11 +86,18 @@ class DataEnricher:
         self.df['SMA_EMA_5_Diff'] = self.df['SMA_7'] - self.df['EMA_5']
         self.df['SMA_EMA_10_Diff'] = self.df['SMA_21'] - self.df['EMA_10']
 
+        # Cruces de medias móviles (ahora sí existen las EMAs y SMAs)
+        self.df['SMA_Cross_5_20'] = (self.df['EMA_5'] > self.df['EMA_20']).astype(int)
+        self.df['SMA_Cross_10_50'] = (self.df['EMA_10'] > self.df['SMA_50']).astype(int)
+
+        # Volatilidad relativa (ahora sí existen las volatilidades)
+        self.df['Volatility_Ratio_7_30'] = self.df['Volatility_7'] / self.df['Volatility_30']
+
     def enrich_data(self, output_file):
         """Ejecuta todo el proceso de enriquecimiento"""
         self.add_temporal_features()
         self.add_technical_indicators()
-        self.add_advanced_features()  # Añadir esta línea
+        self.add_advanced_features()
 
         # Crear el directorio si no existe
         output_dir = os.path.join('src', 'static', 'data')
