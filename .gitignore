@@ -1,3 +1,10 @@
+# Permitir archivos de datos y modelos generados por el pipeline
+!src/static/data/*.csv
+!src/static/models/*.pkl
+!src/static/models/*.csv
+!src/static/models/plots/*.png
+!src/static/predictions/*.csv
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
