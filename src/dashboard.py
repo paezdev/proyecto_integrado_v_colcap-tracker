@@ -217,27 +217,18 @@ try:
 
     # Preprocesar la última fila igual que en el entrenamiento
     last_data = df.copy().iloc[[-1]]
-    all_features = [
-        'High AVAL', 'Low AVAL', 'Open AVAL', 'Volume AVAL',
-        'Month', 'Year', 'Quarter', 'SMA_7', 'SMA_21',
-        'SMA_50', 'SMA_100', 'SMA_200',
-        'Volatility_7', 'Daily_Return', 'RSI', 'Momentum',
-        'BB_middle', 'BB_upper', 'BB_lower', 'Day_of_Week_Num',
-        'Month_Sin', 'Month_Cos', 'Day_of_Week_Sin', 'Day_of_Week_Cos',
-        'Price_Ratio', 'High_Low_Ratio', 'Volume_Change',
-        'Volatility_14', 'Volatility_30', 'ROC_5', 'ROC_10', 'ROC_20',
-        'EMA_5', 'EMA_10', 'EMA_20', 'SMA_EMA_5_Diff', 'SMA_EMA_10_Diff',
-        'SMA_Cross_5_20', 'SMA_Cross_10_50', 'Volatility_Ratio_7_30'
-    ]
-    for col in all_features:
-        if col not in last_data.columns:
+
+    # Verificar que todas las features seleccionadas estén presentes
+    missing_features = [col for col in selected_features if col not in last_data.columns]
+    if missing_features:
+        st.warning(f"Faltan las siguientes features en los datos: {missing_features}")
+        for col in missing_features:
             last_data[col] = 0  # Valor por defecto
 
-    # Solo selecciona las features seleccionadas por el modelo
+    # Usar SOLO las features seleccionadas
     X_last = last_data[selected_features]
     X_last_scaled = scaler.transform(X_last)
-    X_last_selected = selector.transform(X_last_scaled)
-    prediction = model.predict(X_last_selected)[0]
+    prediction = model.predict(X_last_scaled)[0]  # No necesitas usar selector.transform aquí
 
     # Señal de trading
     last_value = last_data['Adj Close AVAL'].values[0]
