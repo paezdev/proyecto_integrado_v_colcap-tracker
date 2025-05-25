@@ -70,7 +70,7 @@ if st.sidebar.button("Resetear filtros"):
     for key in ['year_range', 'selected_mas', 'selected_indicators', 'model_selector']:
         if key in st.session_state:
             del st.session_state[key]
-    st.experimental_rerun()
+    st.rerun()
 
 year_range = st.sidebar.slider(
     "Seleccionar Rango de Años",
