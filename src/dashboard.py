@@ -52,9 +52,7 @@ if 'selected_indicators' not in st.session_state:
 if 'model_selector' not in st.session_state:
     st.session_state['model_selector'] = "ML Mejorado"
 
-# ======================
 # Sidebar con filtros y mejoras
-# ======================
 st.sidebar.header("Filtros")
 
 # Selector de modelo
@@ -76,7 +74,6 @@ year_range = st.sidebar.slider(
     "Seleccionar Rango de Años",
     min_value=int(df['Year'].min()),
     max_value=int(df['Year'].max()),
-    value=st.session_state['year_range'],
     key='year_range'
 )
 
@@ -84,7 +81,6 @@ ma_options = ['SMA_21', 'SMA_50', 'SMA_100', 'SMA_200']
 selected_mas = st.sidebar.multiselect(
     "Medias Móviles a Visualizar",
     options=ma_options,
-    default=st.session_state['selected_mas'],
     key='selected_mas'
 )
 
@@ -92,7 +88,6 @@ indicator_options = ['RSI', 'Bandas de Bollinger', 'Volatilidad', 'Momentum']
 selected_indicators = st.sidebar.multiselect(
     "Indicadores Técnicos a Visualizar",
     options=indicator_options,
-    default=st.session_state['selected_indicators'],
     key='selected_indicators'
 )
 
