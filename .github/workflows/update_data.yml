@@ -45,6 +45,7 @@ jobs:
         git add src/static/models/model.pkl src/static/models/metrics.csv
         git add src/static/models/scaler.pkl src/static/models/feature_selector.pkl src/static/models/selected_features.csv
         git add src/static/models/plots/*.png
+        git add src/static/predictions/*.csv
         git commit -m "Actualización automática de datos AVAL" || echo "No changes to commit"
         git push https://github.com/${{ github.repository }} HEAD:main
       env:
