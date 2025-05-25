@@ -20,7 +20,7 @@ st.title("📊 AVAL Stock Analysis Dashboard")
 
 # Definir rutas relativas
 DATA_PATH = os.path.join('src', 'static', 'data', 'enriched_historical.csv')
-HISTORICAL_PATH = os.path.join('src', 'static', 'data', 'historical.csv')  # Ajusta si tu archivo está en otra ruta
+HISTORICAL_PATH = os.path.join('src', 'static', 'data', 'historical.csv')
 MODEL_PATH = os.path.join('src', 'static', 'models', 'model.pkl')
 METRICS_PATH = os.path.join('src', 'static', 'models', 'metrics.csv')
 SCALER_PATH = os.path.join('src', 'static', 'models', 'scaler.pkl')
@@ -40,45 +40,66 @@ except Exception as e:
     st.error(f"Error al cargar los datos: {e}")
     st.stop()
 
+# ======================
+# Inicialización de filtros en session_state
+# ======================
+if 'year_range' not in st.session_state:
+    st.session_state['year_range'] = (int(df['Year'].min()), int(df['Year'].max()))
+if 'selected_mas' not in st.session_state:
+    st.session_state['selected_mas'] = ['SMA_21', 'SMA_50', 'SMA_200']
+if 'selected_indicators' not in st.session_state:
+    st.session_state['selected_indicators'] = ['RSI', 'Bandas de Bollinger']
+if 'model_selector' not in st.session_state:
+    st.session_state['model_selector'] = "ML Mejorado"
+
+# ======================
 # Sidebar con filtros y mejoras
+# ======================
 st.sidebar.header("Filtros")
 
 # Selector de modelo
 model_selector = st.sidebar.radio(
     "Selecciona el modelo a visualizar:",
     options=["ML Mejorado", "ARIMA", "Ambos"],
-    index=0
+    index=["ML Mejorado", "ARIMA", "Ambos"].index(st.session_state['model_selector']),
+    key='model_selector'
 )
 
 # Botón para resetear filtros
 if st.sidebar.button("Resetear filtros"):
+    for key in ['year_range', 'selected_mas', 'selected_indicators', 'model_selector']:
+        if key in st.session_state:
+            del st.session_state[key]
     st.experimental_rerun()
 
 year_range = st.sidebar.slider(
     "Seleccionar Rango de Años",
     min_value=int(df['Year'].min()),
     max_value=int(df['Year'].max()),
-    value=(int(df['Year'].min()), int(df['Year'].max()))
+    value=st.session_state['year_range'],
+    key='year_range'
 )
 
-# Selección de medias móviles a visualizar
 ma_options = ['SMA_21', 'SMA_50', 'SMA_100', 'SMA_200']
 selected_mas = st.sidebar.multiselect(
     "Medias Móviles a Visualizar",
     options=ma_options,
-    default=['SMA_21', 'SMA_50', 'SMA_200']
+    default=st.session_state['selected_mas'],
+    key='selected_mas'
 )
 
-# Selector de indicadores técnicos
 indicator_options = ['RSI', 'Bandas de Bollinger', 'Volatilidad', 'Momentum']
 selected_indicators = st.sidebar.multiselect(
     "Indicadores Técnicos a Visualizar",
     options=indicator_options,
-    default=['RSI', 'Bandas de Bollinger']
+    default=st.session_state['selected_indicators'],
+    key='selected_indicators'
 )
 
+# ======================
 # Filtrar datos por año
-mask = (df['Year'] >= year_range[0]) & (df['Year'] <= year_range[1])
+# ======================
+mask = (df['Year'] >= st.session_state['year_range'][0]) & (df['Year'] <= st.session_state['year_range'][1])
 filtered_df = df[mask].copy()
 
 # ======================
