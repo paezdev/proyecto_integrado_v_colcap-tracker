@@ -6,6 +6,9 @@ import numpy as np
 import joblib
 import os
 
+# Importa el modelo ARIMA
+from arima_model import ejecutar_arima_completo
+
 # Configuración de la página
 st.set_page_config(
     page_title="AVAL Stock Analysis Dashboard",
@@ -17,6 +20,7 @@ st.title("📊 AVAL Stock Analysis Dashboard")
 
 # Definir rutas relativas
 DATA_PATH = os.path.join('src', 'static', 'data', 'enriched_historical.csv')
+HISTORICAL_PATH = os.path.join('historical.csv')  # Ajusta si tu archivo está en otra ruta
 MODEL_PATH = os.path.join('src', 'static', 'models', 'model.pkl')
 METRICS_PATH = os.path.join('src', 'static', 'models', 'metrics.csv')
 SCALER_PATH = os.path.join('src', 'static', 'models', 'scaler.pkl')
@@ -38,6 +42,13 @@ except Exception as e:
 
 # Sidebar con filtros y mejoras
 st.sidebar.header("Filtros")
+
+# Selector de modelo
+model_selector = st.sidebar.radio(
+    "Selecciona el modelo a visualizar:",
+    options=["ML Mejorado", "ARIMA", "Ambos"],
+    index=0
+)
 
 # Botón para resetear filtros
 if st.sidebar.button("Resetear filtros"):
@@ -318,77 +329,115 @@ if 'Momentum' in selected_indicators:
         st.plotly_chart(fig_mom, use_container_width=True)
 
 # ======================
-# Predicción con el pipeline completo
+# Selector de modelo y predicción
 # ======================
-st.subheader("Predicción del Modelo Mejorado")
-try:
-    model = joblib.load(MODEL_PATH)
-    scaler = joblib.load(SCALER_PATH)
-    selector = joblib.load(SELECTOR_PATH)
-    selected_features = pd.read_csv(FEATURES_PATH)['0'].tolist()
-    metrics = pd.read_csv(METRICS_PATH)
+st.subheader("Comparación de Modelos de Predicción")
 
-    # Preprocesar la última fila igual que en el entrenamiento
-    last_data = df.copy().iloc[[-1]]
-    all_features = [
-        'High AVAL', 'Low AVAL', 'Open AVAL', 'Volume AVAL',
-        'Month', 'Year', 'Quarter', 'SMA_7', 'SMA_21',
-        'SMA_50', 'SMA_100', 'SMA_200',
-        'Volatility_7', 'Daily_Return', 'RSI', 'Momentum',
-        'BB_middle', 'BB_upper', 'BB_lower', 'Day_of_Week_Num',
-        'Month_Sin', 'Month_Cos', 'Day_of_Week_Sin', 'Day_of_Week_Cos',
-        'Price_Ratio', 'High_Low_Ratio', 'Volume_Change',
-        'Volatility_14', 'Volatility_30', 'ROC_5', 'ROC_10', 'ROC_20',
-        'EMA_5', 'EMA_10', 'EMA_20', 'SMA_EMA_5_Diff', 'SMA_EMA_10_Diff',
-        'SMA_Cross_5_20', 'SMA_Cross_10_50', 'Volatility_Ratio_7_30'
-    ]
-    for col in all_features:
-        if col not in last_data.columns:
-            last_data[col] = 0  # Valor por defecto
+if model_selector in ["ML Mejorado", "Ambos"]:
+    st.markdown("### Predicción del Modelo ML Mejorado")
+    try:
+        model = joblib.load(MODEL_PATH)
+        scaler = joblib.load(SCALER_PATH)
+        selector = joblib.load(SELECTOR_PATH)
+        selected_features = pd.read_csv(FEATURES_PATH)['0'].tolist()
+        metrics = pd.read_csv(METRICS_PATH)
 
-    # Usar TODAS las features disponibles, no solo las seleccionadas
-    available_features = [col for col in all_features if col in last_data.columns]
-    X_last = last_data[available_features]
+        # Preprocesar la última fila igual que en el entrenamiento
+        last_data = df.copy().iloc[[-1]]
+        all_features = [
+            'High AVAL', 'Low AVAL', 'Open AVAL', 'Volume AVAL',
+            'Month', 'Year', 'Quarter', 'SMA_7', 'SMA_21',
+            'SMA_50', 'SMA_100', 'SMA_200',
+            'Volatility_7', 'Daily_Return', 'RSI', 'Momentum',
+            'BB_middle', 'BB_upper', 'BB_lower', 'Day_of_Week_Num',
+            'Month_Sin', 'Month_Cos', 'Day_of_Week_Sin', 'Day_of_Week_Cos',
+            'Price_Ratio', 'High_Low_Ratio', 'Volume_Change',
+            'Volatility_14', 'Volatility_30', 'ROC_5', 'ROC_10', 'ROC_20',
+            'EMA_5', 'EMA_10', 'EMA_20', 'SMA_EMA_5_Diff', 'SMA_EMA_10_Diff',
+            'SMA_Cross_5_20', 'SMA_Cross_10_50', 'Volatility_Ratio_7_30'
+        ]
+        for col in all_features:
+            if col not in last_data.columns:
+                last_data[col] = 0  # Valor por defecto
 
-    # Escalar y seleccionar
-    X_last_scaled = scaler.transform(X_last)
-    X_last_selected = selector.transform(X_last_scaled)
-    prediction = model.predict(X_last_selected)[0]
+        available_features = [col for col in all_features if col in last_data.columns]
+        X_last = last_data[available_features]
 
-    # Señal de trading
-    last_value = last_data['Adj Close AVAL'].values[0]
-    percent_change = ((prediction - last_value) / last_value) * 100
-    if percent_change > 0:
-        signal = f"COMPRA (↑ {percent_change:.2f}%)"
-    elif percent_change < 0:
-        signal = f"VENTA (↓ {abs(percent_change):.2f}%)"
-    else:
-        signal = "MANTENER (sin cambio)"
+        # Escalar y seleccionar
+        X_last_scaled = scaler.transform(X_last)
+        X_last_selected = selector.transform(X_last_scaled)
+        prediction = model.predict(X_last_selected)[0]
 
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.metric(
-            "Predicción Próximo Día",
-            f"${prediction:.2f}",
-            f"{(prediction - last_value):.2f}"
+        # Señal de trading
+        last_value = last_data['Adj Close AVAL'].values[0]
+        percent_change = ((prediction - last_value) / last_value) * 100
+        if percent_change > 0:
+            signal = f"COMPRA (↑ {percent_change:.2f}%)"
+        elif percent_change < 0:
+            signal = f"VENTA (↓ {abs(percent_change):.2f}%)"
+        else:
+            signal = "MANTENER (sin cambio)"
+
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric(
+                "Predicción Próximo Día",
+                f"${prediction:.2f}",
+                f"{(prediction - last_value):.2f}"
+            )
+            st.write(f"**Señal:** {signal}")
+        with col2:
+            st.metric("RMSE del Modelo", f"{metrics['RMSE'].iloc[0]:.4f}")
+        with col3:
+            st.metric("R² del Modelo", f"{metrics['R2'].iloc[0]:.4f}")
+
+        # Importancia de features (si la guardaste)
+        st.subheader("Importancia de las Features Seleccionadas")
+        if hasattr(model, 'coef_'):
+            importances = pd.Series(model.coef_, index=selected_features)
+            importances = importances.abs().sort_values(ascending=False)
+            st.bar_chart(importances)
+        else:
+            st.info("El modelo no tiene coeficientes de importancia disponibles.")
+
+    except Exception as e:
+        st.error(f"Error al cargar el modelo mejorado: {e}")
+
+if model_selector in ["ARIMA", "Ambos"]:
+    st.markdown("### Predicción y Métricas del Modelo ARIMA")
+    try:
+        arima_result = ejecutar_arima_completo(
+            ruta_archivo=HISTORICAL_PATH,
+            order=(3,1,1),
+            graficar=False
         )
-        st.write(f"**Señal:** {signal}")
-    with col2:
-        st.metric("RMSE del Modelo", f"{metrics['RMSE'].iloc[0]:.4f}")
-    with col3:
-        st.metric("R² del Modelo", f"{metrics['R2'].iloc[0]:.4f}")
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            st.metric("MAE ARIMA", f"{arima_result['mae']:.4f}")
+        with col2:
+            st.metric("RMSE ARIMA", f"{arima_result['rmse']:.4f}")
+        with col3:
+            st.metric("MAPE ARIMA", f"{arima_result['mape']:.2f}%")
+        with col4:
+            st.metric("R² ARIMA", f"{arima_result['r2']:.4f}")
 
-    # Importancia de features (si la guardaste)
-    st.subheader("Importancia de las Features Seleccionadas")
-    if hasattr(model, 'coef_'):
-        importances = pd.Series(model.coef_, index=selected_features)
-        importances = importances.abs().sort_values(ascending=False)
-        st.bar_chart(importances)
-    else:
-        st.info("El modelo no tiene coeficientes de importancia disponibles.")
+        st.write(f"📅 **Predicción ARIMA para el siguiente día ({arima_result['next_date'].date()}):** {arima_result['forecast'].values[0]:.4f}")
 
-except Exception as e:
-    st.error(f"Error al cargar el modelo mejorado: {e}")
+        # Mostrar gráfico ARIMA (matplotlib)
+        import matplotlib.pyplot as plt
+        fig = plt.figure(figsize=(12,5))
+        plt.plot(arima_result['serie'], label='Precio Real', color='blue')
+        plt.plot(arima_result['pred'], label='Predicción ARIMA', color='orange', linestyle='--')
+        plt.scatter(arima_result['next_date'], arima_result['forecast'].values[0], color='red', label='Predicción siguiente día', zorder=5)
+        plt.title(f'ARIMA(3,1,1) - R² = {arima_result["r2"]:.4f}')
+        plt.xlabel('Fecha')
+        plt.ylabel('Adj Close AVAL')
+        plt.legend()
+        plt.grid(True)
+        st.pyplot(fig)
+
+    except Exception as e:
+        st.error(f"Error al ejecutar el modelo ARIMA: {e}")
 
 # ======================
 # Historial de señales y exportación
