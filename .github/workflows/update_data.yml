@@ -2,7 +2,7 @@ name: Actualizar datos AVAL
 
 on:
   schedule:
-    - cron: '0 12 * * *'  # Ejecuta todos los días a las 12:00 UTC
+    - cron: '10 21 * * *'  # Ejecuta todos los días a las 21:10 UTC (4:10 p.m. Colombia)
   workflow_dispatch:  # Permite ejecutar el flujo de trabajo manualmente desde GitHub
 
 jobs:
