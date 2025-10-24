@@ -1,0 +1,9 @@
+[2025-10-24 21:25:08 | LoggerAVAL | MiClase | mi_funcion | DEBUG] Este es un mensaje de debug
+[2025-10-24 21:25:08 | LoggerAVAL | MiClase | mi_funcion | INFO] Este es un mensaje de info
+[2025-10-24 21:25:08 | LoggerAVAL | MiClase | mi_funcion | WARNING] Este es un mensaje de warning
+[2025-10-24 21:25:08 | LoggerAVAL | MiClase | mi_funcion | CRITICAL] Este es un mensaje de critical
+[2025-10-24 21:25:08 | LoggerAVAL | DataCollector | fetch_data | INFO] Descargando datos para AVAL
+[2025-10-24 21:25:08 | LoggerAVAL | DataCollector | save_data | INFO] Datos guardados en src/static/data/historical.csv
+[2025-10-24 21:25:08 | LoggerAVAL | DataCollector | save_data | INFO] Registros descargados: 22
+[2025-10-24 21:25:08 | LoggerAVAL | DataCollector | save_data | INFO] Nuevos registros agregados: 1
+[2025-10-24 21:25:08 | LoggerAVAL | DataCollector | save_data | INFO] Total de registros en el archivo: 2790
